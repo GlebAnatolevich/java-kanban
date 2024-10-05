@@ -4,10 +4,10 @@ import java.util.Objects;
 
 public class Task {
 
-    private int id;
-    private String name;
-    private Status status;
-    private String description;
+    protected int id;
+    protected String name;
+    protected Status status;
+    protected String description;
 
     public Task(String name, Status status, String description) {
         this.name = name;
