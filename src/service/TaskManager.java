@@ -72,10 +72,11 @@ public class TaskManager {
             return;
         } // (если в Х-Т подзадач нет такой подзадачи) ИЛИ (если эпик этой подзадачи = null) ИЛИ (если в Х-Т эпиков нет
         // эпика, в состав которого входит подзадача) ----> выходим из метода
+        SubTask subTaskRemoved = subTasks.get(subTask.getId()); // получили старую подзадачу из Х-Т
+        Epic savedEpic = epics.get(subTask.getEpicFromSubTasks().getId()); // получили эпик из Х-Т
+        savedEpic.removeTask(subTaskRemoved); // удалили старую подзадачу из списка подзадач эпика
+        savedEpic.addTask(subTask); // добавили новую подзадачу в список подзадач эпика
         subTasks.put(subTask.getId(), subTask); // обновили подзадачу в Х-Т подзадач
-        Epic epic = subTask.getEpicFromSubTasks();
-        epic.updateSubTaskInEpic(subTask); // обновили подзадачу в списке подзадач эпика
-        Epic savedEpic = epics.get(epic.getId());
         calculateStatus(savedEpic);
     }
 
@@ -122,7 +123,12 @@ public class TaskManager {
         }
     }
 
-    public List<SubTask> getSubTasksOfEpic(int id) { return new ArrayList<>(epics.get(id).getSubTasks()); }
+    public List<SubTask> getSubTasksOfEpic(int id) {
+        if (!epics.containsKey(id) || epics.get(id) == null) {
+            return null;
+        }
+        return new ArrayList<>(epics.get(id).getSubTasks());
+    }
 
     private void calculateStatus(Epic epic) {
         List<SubTask> subTasksOfEpic = epic.getSubTasks();
@@ -130,6 +136,7 @@ public class TaskManager {
         int statusDone = 0;
         if (subTasksOfEpic.size() == 0) {
             epic.setStatus(Status.NEW);
+            return;
         } else {
             for (SubTask subTask : subTasksOfEpic) {
                 if (subTask.getStatus() == Status.NEW) {

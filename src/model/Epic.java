@@ -18,11 +18,8 @@ public class Epic extends Task {
         subTasks.add(subTask);
     }
 
-    public void updateSubTaskInEpic(SubTask subTask) {
-        SubTask saved = subTask;
-        saved.setName(subTask.getName());
-        saved.setStatus(subTask.getStatus());
-        saved.setDescription(subTask.getDescription());
+    public void removeTask(SubTask subTask) {
+        subTasks.remove(subTask);
     }
 
     @Override
