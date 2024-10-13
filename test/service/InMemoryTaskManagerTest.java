@@ -13,7 +13,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class InMemoryTaskManagerTest {
 
-    private static TaskManager taskManager;
+    private TaskManager taskManager;
 
     @BeforeEach
     public void beforeEach() {
@@ -64,7 +64,7 @@ class InMemoryTaskManagerTest {
         Task task1 = taskManager.create(new Task("Задача1", NEW, "Записаться на стрижку"));
         Task task2 = taskManager.create(new Task("Задача2", NEW, "Побрить кота"));
         taskManager.deleteAllTasks();
-        final List<Task> tasks = taskManager.getAllTasks();
+        List<Task> tasks = taskManager.getAllTasks();
 
         assertTrue(tasks.isEmpty(), "Коллекция задач по-прежнему не пуста");
     }
@@ -74,7 +74,7 @@ class InMemoryTaskManagerTest {
         Epic epic1 = taskManager.createEpic(new Epic("Эпик1", IN_PROGRESS, "Создать бесконечные тесты трекера"));
         Epic epic2 = taskManager.createEpic(new Epic("Эпик2", DONE, "Разобраться в связях классов и интерфейсов"));
         taskManager.deleteAllEpics();
-        final List<Epic> epics = taskManager.getAllEpics();
+        List<Epic> epics = taskManager.getAllEpics();
 
         assertTrue(epics.isEmpty(), "Коллекция эпиков по-прежнему не пуста");
     }
@@ -87,7 +87,7 @@ class InMemoryTaskManagerTest {
         SubTask subTask3 = taskManager.createSubTask(new SubTask(epic,"Подзадача3", DONE, "выпитого"));
         SubTask subTask4 = taskManager.createSubTask(new SubTask(epic,"Подзадача4", DONE, "кофе."));
         taskManager.deleteAllSubTasks();
-        final List<SubTask> subTasks = taskManager.getAllSubTasks();
+        List<SubTask> subTasks = taskManager.getAllSubTasks();
 
         assertTrue(subTasks.isEmpty(), "Коллекция подзадач по-прежнему не пуста");
         assertTrue(epic.getStatus() == NEW, "СТАТУС ЭПИКА ПОСЛЕ УДАЛЕНИЯ ПОДЗАДАЧ - NEW");
@@ -98,7 +98,7 @@ class InMemoryTaskManagerTest {
         Task task = new Task("Задача", DONE, "Побрить кота");
         task.setId(10);
         taskManager.create(task); // при create срабатывает метод generateId, который должен присвоить 1 вместо 10
-        final List<Task> tasks = taskManager.getAllTasks();
+        List<Task> tasks = taskManager.getAllTasks();
         Task actualTask = tasks.get(0);
 
         assertEquals(task.getId(), actualTask.getId());

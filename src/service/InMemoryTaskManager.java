@@ -50,26 +50,29 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public Task getTask(int id) {
-        if (tasks.get(id) != null) {
-            historyManager.addTask(tasks.get(id)); // добавляем задачу в конец истории просмотров
+        Task task = tasks.get(id);
+        if (task != null) {
+            historyManager.addTask(task); // добавляем задачу в конец истории просмотров
         }
-        return tasks.get(id);
+        return task;
     }
 
     @Override
     public Epic getEpic(int id) {
-        if (epics.get(id) != null) {
-            historyManager.addTask(epics.get(id)); // добавляем эпик в конец истории просмотров
+        Epic epic = epics.get(id);
+        if (epic != null) {
+            historyManager.addTask(epic); // добавляем эпик в конец истории просмотров
         }
-        return epics.get(id);
+        return epic;
     }
 
     @Override
     public SubTask getSubTask(int id) {
-        if (subTasks.get(id) != null) {
-            historyManager.addTask(subTasks.get(id)); // добавляем подзадачу в конец истории просмотров
+        SubTask subTask = subTasks.get(id);
+        if (subTask != null) {
+            historyManager.addTask(subTask); // добавляем подзадачу в конец истории просмотров
         }
-        return subTasks.get(id);
+        return subTask;
     }
 
     @Override
@@ -161,6 +164,7 @@ public class InMemoryTaskManager implements TaskManager {
     @Override
     public List<Task> getHistory() { return historyManager.getHistory(); }
 
+    @Override
     public List<SubTask> getSubTasksOfEpic(int id) {
         if (!epics.containsKey(id) || epics.get(id) == null) {
             return null;

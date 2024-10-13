@@ -8,7 +8,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class SubTaskTest {
 
-    private final InMemoryTaskManager taskManager = new InMemoryTaskManager();
+    private InMemoryTaskManager taskManager = new InMemoryTaskManager();
 
     @Test
     public void subTasksShouldBeEqual_IfIdsEqual() {

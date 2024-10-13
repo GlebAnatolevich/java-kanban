@@ -13,7 +13,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class InMemoryHistoryManagerTest {
 
-    private static TaskManager taskManager;
+    private TaskManager taskManager;
 
     @BeforeEach
     public void beforeEach() {
@@ -45,7 +45,7 @@ class InMemoryHistoryManagerTest {
         updatedTask.setId(task.getId());
         taskManager.update(updatedTask);
 
-        final List<Task> tasks = taskManager.getHistory();
+        List<Task> tasks = taskManager.getHistory();
         Task prevTask = tasks.get(0);
 
         assertEquals(task.getName(), prevTask.getName(), "Сохранена не предыдущая версия");
@@ -63,7 +63,7 @@ class InMemoryHistoryManagerTest {
         updatedEpic.setId(epic.getId());
         taskManager.updateEpic(updatedEpic);
 
-        final List<Task> tasks = taskManager.getHistory();
+        List<Task> tasks = taskManager.getHistory();
         Task prevTask = tasks.get(0);
 
         assertEquals(epic.getName(), prevTask.getName(), "Сохранена не предыдущая версия");
@@ -84,7 +84,7 @@ class InMemoryHistoryManagerTest {
         updatedSubTask.setId(subTask.getId());
         taskManager.updateSubTask(updatedSubTask);
 
-        final List<Task> tasks = taskManager.getHistory();
+        List<Task> tasks = taskManager.getHistory();
         Task prevTask = tasks.get(0);
 
         assertEquals(subTask.getName(), prevTask.getName(), "Сохранена не предыдущая версия");
