@@ -45,7 +45,7 @@ public class Task {
 
     @Override
     public String toString() {
-        return "Task{" +
+        return "TaskManager{" +
                 "id=" + id +
                 ", name='" + name + '\'' +
                 ", status=" + status +
