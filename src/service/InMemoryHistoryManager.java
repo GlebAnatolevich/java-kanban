@@ -27,7 +27,9 @@ public class InMemoryHistoryManager implements HistoryManager {  // код дл�
     }
 
     @Override
-    public List<Task> getHistory() { return getTasks(); }
+    public List<Task> getHistory() {
+        return getTasks();
+    }
 
     private Node<Task> linkLast(Task task) {
         final Node<Task> oldTail = tail;
