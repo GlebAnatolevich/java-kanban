@@ -17,11 +17,11 @@ public class Main {
                 "эпика 111"));
         Epic epic2 = taskManager.createEpic(new Epic("эпик 222 с 2 подзадачами", NEW, "описание " +
                 "эпика 222"));
-        SubTask subTask1 = taskManager.createSubTask(new SubTask(epic1,"подзадача 111", NEW,
+        SubTask subTask1 = taskManager.createSubTask(new SubTask(epic1, "подзадача 111", NEW,
                 "описание подзадачи 111"));
-        SubTask subTask2 = taskManager.createSubTask(new SubTask(epic2,"подзадача 222", NEW,
+        SubTask subTask2 = taskManager.createSubTask(new SubTask(epic2, "подзадача 222", NEW,
                 "описание подзадачи 222"));
-        SubTask subTask3 = taskManager.createSubTask(new SubTask(epic2,"подзадача 333", NEW,
+        SubTask subTask3 = taskManager.createSubTask(new SubTask(epic2, "подзадача 333", NEW,
                 "описание подзадачи 333"));
 
         System.out.println("Create task1: " + task1);

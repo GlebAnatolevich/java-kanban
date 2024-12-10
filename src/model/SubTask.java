@@ -8,7 +8,9 @@ public class SubTask extends Task {
         this.epic = epic;
     }
 
-    public Epic getEpicFromSubTasks() { return epic; }
+    public Epic getEpicFromSubTasks() {
+        return epic;
+    }
 
     @Override
     public String toString() {
