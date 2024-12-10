@@ -78,6 +78,8 @@ public class Main {
         taskManager.getTask(2);
         taskManager.getSubTask(5);
         taskManager.getSubTask(5);
+        taskManager.getEpic(3);
+        taskManager.getTask(2);
         System.out.println("История просмотров:");
 
         List<Task> history2 = taskManager.getHistory();
