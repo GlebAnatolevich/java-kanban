@@ -1,11 +1,11 @@
-package service;
+package model;
 
 public class Node<T> {
     private T data;
     private Node<T> prev;
     private Node<T> next;
 
-    protected Node(Node<T> prev, T data, Node<T> next) {
+    public Node(Node<T> prev, T data, Node<T> next) {
         this.data = data;
         this.prev = prev;
         this.next = next;

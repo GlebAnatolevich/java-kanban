@@ -111,6 +111,7 @@ public class InMemoryTaskManager implements TaskManager {
     @Override
     public void delete(int id) {
         tasks.remove(id);
+        historyManager.removeTask(id);
     }
 
     @Override
@@ -122,8 +123,10 @@ public class InMemoryTaskManager implements TaskManager {
         List<SubTask> subTasksOfEpic = epic.getSubTasks(); // получили список подзадач удаляемого эпика
         for (SubTask subTask : subTasksOfEpic) {
             subTasks.remove(subTask.getId()); // удалили поочередно каждую подзадачу из Х-Т подзадач
+            historyManager.removeTask(subTask.getId());
         }
         epics.remove(id); // удалили сам эпик из Х-Т эпиков по id
+        historyManager.removeTask(id);
     }
 
     @Override
@@ -136,6 +139,7 @@ public class InMemoryTaskManager implements TaskManager {
         Epic epicSaved = epics.get(epic.getId()); // перезаписали эпик в новый объект (пересохранили)
         epicSaved.getSubTasks().remove(removeSubTask); // получили список подзадач эпика и удалили удаляемую подзадачу из списка
         calculateStatus(epicSaved); // пересчитали статус эпика
+        historyManager.removeTask(id);
     }
 
     @Override
@@ -155,12 +159,24 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public void deleteAllTasks() {
+        for (Task task : tasks.values()) {
+            historyManager.removeTask(task.getId());
+        }
         tasks.clear();
     }
 
     @Override
     public void deleteAllEpics() {
-        epics.clear(); subTasks.clear();
+        subTasks.clear();
+        for (Epic epic : epics.values()) {
+            historyManager.removeTask(epic.getId());
+            List<SubTask> subTasksOfEpic = epic.getSubTasks();
+            for (SubTask subTask : subTasksOfEpic) {
+                historyManager.removeTask(subTask.getId());
+            }
+            subTasksOfEpic.clear();
+        }
+        epics.clear();
     }
 
     @Override
@@ -169,6 +185,9 @@ public class InMemoryTaskManager implements TaskManager {
         for (Epic epic : epics.values()) {
             epic.setStatus(Status.NEW);
             List<SubTask> subTasksOfEpic = epic.getSubTasks();
+            for (SubTask subTask : subTasksOfEpic) {
+                historyManager.removeTask(subTask.getId());
+            }
             subTasksOfEpic.clear();
         }
     }

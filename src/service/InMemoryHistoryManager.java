@@ -1,5 +1,6 @@
 package service;
 
+import model.Node;
 import model.Task;
 
 import java.util.Map;
@@ -24,6 +25,7 @@ public class InMemoryHistoryManager implements HistoryManager {  // код дл�
     @Override
     public void removeTask(int id) {
         removeNode(historyMap.get(id));
+        historyMap.remove(id);
     }
 
     @Override
@@ -31,7 +33,7 @@ public class InMemoryHistoryManager implements HistoryManager {  // код дл�
         return getTasks();
     }
 
-    private Node<Task> linkLast(Task task) {
+    private void linkLast(Task task) {
         final Node<Task> oldTail = tail;
         final Node<Task> newNode = new Node<>(tail, task, null);
         tail = newNode;
@@ -41,7 +43,6 @@ public class InMemoryHistoryManager implements HistoryManager {  // код дл�
         } else {
             head = newNode;
         }
-        return newNode;
     }
 
     private List<Task> getTasks() {

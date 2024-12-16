@@ -67,8 +67,8 @@ public class Main {
         System.out.println("Update subTask3: " + subTask3);
         System.out.println("_________________________________________________________________________________________");
 
-        taskManager.delete(1);
-        taskManager.deleteEpic(4);
+        //taskManager.delete(1);
+        //taskManager.deleteEpic(4);
         System.out.println("Оставшиеся задачи:" + taskManager.getAllTasks());
         System.out.println("Оставшиеся эпики:" + taskManager.getAllEpics());
         System.out.println("Оставшиеся подзадачи:" + taskManager.getAllSubTasks());
@@ -84,7 +84,17 @@ public class Main {
         taskManager.getSubTask(5);
         taskManager.getSubTask(5);
         taskManager.getEpic(3);
+        taskManager.getEpic(4);
         taskManager.getTask(2);
+        taskManager.getSubTask(5);
+        //taskManager.deleteEpic(3);
+        //taskManager.deleteSubTask(5);
+        //taskManager.deleteAllSubTasks();
+        taskManager.deleteAllEpics();
+        taskManager.deleteAllTasks();
+        System.out.println("Оставшиеся задачи:" + taskManager.getAllTasks());
+        System.out.println("Оставшиеся подзадачи:" + taskManager.getAllSubTasks());
+        System.out.println("Оставшиеся эпики:" + taskManager.getAllEpics());
         System.out.println("История просмотров:");
 
         List<Task> history2 = taskManager.getHistory();
