@@ -14,14 +14,20 @@ import static org.junit.jupiter.api.Assertions.*;
 class InMemoryHistoryManagerTest {
 
     private TaskManager taskManager;
+    private HistoryManager historyManager;
+
+    private Task task1 = new Task("Задача1", NEW, "Забрать товар");
+    private Epic epic1 = new Epic("Эпик1", NEW, "Разработать программу");
+    private SubTask subTask1 = new SubTask(epic1,"Подзадача1", NEW, "Составить структуру");
 
     @BeforeEach
     public void beforeEach() {
         taskManager = Managers.getDefault();
+        historyManager = Managers.getDefaultHistory();
     }
 
     @Test
-    public void getHistoryShouldReturnListOfMaxTenViews() {
+    public void getHistoryShouldReturnListOfCorrectViewsAmount() {
 
         for (int i = 0; i < 15; i++) {
             taskManager.create(new Task("Задача", NEW, "Записаться на стрижку"));
@@ -32,7 +38,7 @@ class InMemoryHistoryManagerTest {
             taskManager.getTask(task.getId());
         }
 
-        assertEquals(10, taskManager.getHistory().size(), "Количество просмотров неверно");
+        assertEquals(15, taskManager.getHistory().size(), "Количество просмотров неверно");
     }
 
     @Test
@@ -90,5 +96,49 @@ class InMemoryHistoryManagerTest {
         assertEquals(subTask.getName(), prevTask.getName(), "Сохранена не предыдущая версия");
         assertEquals(subTask.getDescription(), prevTask.getDescription(), "Сохранена не предыдущая версия");
         assertTrue(NEW == prevTask.getStatus(), "Сохранена не предыдущая версия");
+    }
+
+    @Test
+    public void addTask_ShouldAddTaskToHistoryList() {
+        taskManager.create(task1);
+        taskManager.createEpic(epic1);
+        taskManager.createSubTask(subTask1);
+
+        historyManager.addTask(task1);
+        historyManager.addTask(epic1);
+        historyManager.addTask(subTask1);
+        historyManager.addTask(task1);
+
+        assertEquals(List.of(epic1, subTask1, task1), historyManager.getHistory(), "При добавлении задачи в " +
+                "историю просмотров возникла ошибка");
+    }
+
+    @Test
+    public void addTask_ShouldReturnEmptyIfTaskIsEmpty() {
+        historyManager.addTask(null);
+
+        assertTrue(historyManager.getHistory().isEmpty());
+    }
+
+    @Test
+    public void addTask_ShouldReturnEmptyIfNoHistory() {
+        assertTrue(historyManager.getHistory().isEmpty());
+    }
+
+    @Test
+    public void removeTask_ShouldRemoveTaskFromHistoryList() {
+        taskManager.create(task1);
+        taskManager.createEpic(epic1);
+        taskManager.createSubTask(subTask1);
+
+        historyManager.addTask(task1);
+        historyManager.addTask(epic1);
+        historyManager.addTask(subTask1);
+        historyManager.addTask(task1);
+
+        historyManager.removeTask(subTask1.getId());
+
+        assertEquals(List.of(epic1, task1), historyManager.getHistory(), "При удалении задачи из " +
+                "истории просмотров возникла ошибка");
     }
 }

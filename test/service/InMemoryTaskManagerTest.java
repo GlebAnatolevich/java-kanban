@@ -107,4 +107,60 @@ class InMemoryTaskManagerTest {
         assertEquals(task.getStatus(), actualTask.getStatus());
         assertEquals(task.getDescription(), actualTask.getDescription());
     }
+
+    @Test
+    public void deleteShouldRemoveTaskEpicSubTaskFromHistory() {
+        Task task1 = taskManager.create(new Task("Задача1", NEW, "Записаться на стрижку"));
+        Task task2 = taskManager.create(new Task("Задача2", NEW, "Побрить кота"));
+        Epic epic1 = taskManager.createEpic(new Epic("Эпик", DONE, "Разобраться в связях классов и" +
+                " интерфейсов"));
+        Epic epic2 = taskManager.createEpic(new Epic("Эпик", DONE, "Просто эпик"));
+        SubTask subTask1 = taskManager.createSubTask(new SubTask(epic1,"Подзадача1", DONE, "Было"));
+        SubTask subTask2 = taskManager.createSubTask(new SubTask(epic2,"Подзадача2", DONE, "много"));
+        SubTask subTask3 = taskManager.createSubTask(new SubTask(epic2,"Подзадача3", DONE, "кофе."));
+
+        taskManager.getTask(task1.getId());
+        taskManager.getTask(task2.getId());
+        taskManager.getEpic(epic1.getId());
+        taskManager.getEpic(epic2.getId());
+        taskManager.getSubTask(subTask1.getId());
+        taskManager.getSubTask(subTask2.getId());
+        taskManager.getSubTask(subTask3.getId());
+
+        taskManager.delete(task1.getId());
+        taskManager.deleteEpic(epic1.getId());
+        taskManager.deleteSubTask(subTask2.getId());
+
+        assertEquals(List.of(task2, epic2, subTask3), taskManager.getHistory(), "При удалении задачи из " +
+                "истории просмотров возникла ошибка");
+    }
+
+    @Test
+    public void deleteAllShouldRemoveAllFromHistory() {
+        Task task1 = taskManager.create(new Task("Задача1", NEW, "Записаться на стрижку"));
+        Task task2 = taskManager.create(new Task("Задача2", NEW, "Побрить кота"));
+        Epic epic1 = taskManager.createEpic(new Epic("Эпик", DONE, "Разобраться в связях классов и" +
+                " интерфейсов"));
+        Epic epic2 = taskManager.createEpic(new Epic("Эпик", DONE, "Просто эпик"));
+        SubTask subTask1 = taskManager.createSubTask(new SubTask(epic1,"Подзадача1", DONE, "Было"));
+        SubTask subTask2 = taskManager.createSubTask(new SubTask(epic2,"Подзадача2", DONE, "много"));
+        SubTask subTask3 = taskManager.createSubTask(new SubTask(epic2,"Подзадача3", DONE, "кофе."));
+
+        taskManager.getTask(task1.getId());
+        taskManager.getTask(task2.getId());
+        taskManager.getEpic(epic1.getId());
+        taskManager.getEpic(epic2.getId());
+        taskManager.getSubTask(subTask1.getId());
+        taskManager.getSubTask(subTask2.getId());
+        taskManager.getSubTask(subTask3.getId());
+
+        for (Task task : taskManager.getHistory()) {
+            System.out.println(task);
+        }
+
+        taskManager.deleteAllTasks();
+        taskManager.deleteAllEpics();
+
+        assertTrue(taskManager.getHistory().isEmpty());
+    }
 }
