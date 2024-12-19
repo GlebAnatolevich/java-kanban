@@ -5,9 +5,14 @@ import java.util.List;
 
 public class Epic extends Task {
     private final List<SubTask> subTasks = new ArrayList<>();
+    private Type type = Type.EPIC;
 
     public Epic(String name, Status status, String description) {
         super(name, status, description);
+    }
+
+    public Epic(int id, String name, Status status, String description) { // конструктор для менеджера
+        super(id, name, status, description);
     }
 
     public List<SubTask> getSubTasks() {
@@ -23,6 +28,11 @@ public class Epic extends Task {
     }
 
     @Override
+    public Type getType() {
+        return type;
+    }
+
+    @Override
     public String toString() {
         return "Epic{" +
                 "subTasks=" + subTasks +
@@ -31,5 +41,10 @@ public class Epic extends Task {
                 ", status=" + status +
                 ", description='" + description + '\'' +
                 '}';
+    }
+
+    @Override
+    public String toStringForFile() {
+        return String.format("%s,%s,%s,%s,%s,%s", getId(), getType(), getName(), getStatus(), getDescription(), "");
     }
 }

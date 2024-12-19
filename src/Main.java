@@ -90,8 +90,8 @@ public class Main {
         //taskManager.deleteEpic(3);
         //taskManager.deleteSubTask(5);
         //taskManager.deleteAllSubTasks();
-        taskManager.deleteAllEpics();
-        taskManager.deleteAllTasks();
+        //taskManager.deleteAllEpics();
+        //taskManager.deleteAllTasks();
         System.out.println("Оставшиеся задачи:" + taskManager.getAllTasks());
         System.out.println("Оставшиеся подзадачи:" + taskManager.getAllSubTasks());
         System.out.println("Оставшиеся эпики:" + taskManager.getAllEpics());
