@@ -8,11 +8,22 @@ public class Task {
     protected String name;
     protected Status status;
     protected String description;
+    protected Type type = Type.TASK;
 
     public Task(String name, Status status, String description) {
         this.name = name;
         this.status = status;
         this.description = description;
+    }
+
+    public Task(int id, String name, Status status, String description) { // конструктор для менеджера
+        this.id = id;
+        this.name = name;
+        this.status = status;
+        this.description = description;
+    }
+
+    public Task() {
     }
 
     public int getId() {
@@ -21,6 +32,10 @@ public class Task {
 
     public void setId(int id) {
         this.id = id;
+    }
+
+    public Type getType() {
+        return type;
     }
 
     public String getName() {
@@ -67,5 +82,9 @@ public class Task {
                 ", status=" + status +
                 ", description='" + description + '\'' +
                 '}';
+    }
+
+    public String toStringForFile() {
+        return String.format("%s,%s,%s,%s,%s,%s", id, type, name, status, description, "");
     }
 }
