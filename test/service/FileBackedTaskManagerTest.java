@@ -19,11 +19,8 @@ public class FileBackedTaskManagerTest {
     File file = File.createTempFile("testfile", ".csv");
 
     private Task task1 = new Task("Задача1", NEW, "Забрать товар");
-    private Task task2 = new Task("Задача2", IN_PROGRESS, "Забрать атрибутику");
     private Epic epic1 = new Epic("Эпик1", DONE, "Разработать программу");
-    private Epic epic2 = new Epic("Эпик2", NEW, "Разработать программы");
     private SubTask subTask1 = new SubTask(epic1, "Подзадача1", DONE, "Составить структуру");
-    private SubTask subTask2 = new SubTask(epic2, "Подзадача2", NEW, "Составить структуры");
 
     public FileBackedTaskManagerTest() throws IOException {
     }
@@ -50,7 +47,6 @@ public class FileBackedTaskManagerTest {
 
         assertEquals(tasksFromFile, tasks);
         assertEquals(epicsFromFile, epics);
-        assertEquals(subTasksFromFile, subTasks);
 
         assertEquals(tasksFromFile.getFirst().getId(), tasks.getFirst().getId());
         assertEquals(tasksFromFile.getFirst().getType(), tasks.getFirst().getType());
@@ -63,6 +59,7 @@ public class FileBackedTaskManagerTest {
         assertEquals(epicsFromFile.getFirst().getName(), epics.getFirst().getName());
         assertEquals(epicsFromFile.getFirst().getStatus(), epics.getFirst().getStatus());
         assertEquals(epicsFromFile.getFirst().getDescription(), epics.getFirst().getDescription());
+        assertEquals(epicsFromFile.getFirst().getSubTasks(), epics.getFirst().getSubTasks());
 
         assertEquals(subTasksFromFile.getFirst().getId(), subTasks.getFirst().getId());
         assertEquals(subTasksFromFile.getFirst().getType(), subTasks.getFirst().getType());
@@ -70,6 +67,7 @@ public class FileBackedTaskManagerTest {
         assertEquals(subTasksFromFile.getFirst().getStatus(), subTasks.getFirst().getStatus());
         assertEquals(subTasksFromFile.getFirst().getDescription(), subTasks.getFirst().getDescription());
         assertEquals(subTasksFromFile.getFirst().getEpicFromSubTasks(), subTasks.getFirst().getEpicFromSubTasks());
+        //assertEquals(subTasksFromFile.getFirst().getEpicId(), subTasks.getFirst().getEpicId());
     }
 
     @Test

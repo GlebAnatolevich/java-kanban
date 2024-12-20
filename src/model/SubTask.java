@@ -3,11 +3,6 @@ package model;
 public class SubTask extends Task {
     private Epic epic;
     private Type type = Type.SUBTASK;
-
-    public int getEpicId() {
-        return epicId;
-    }
-
     private int epicId;
 
     public SubTask(Epic epic, String name, Status status, String description) {
@@ -27,6 +22,14 @@ public class SubTask extends Task {
     @Override
     public Type getType() {
         return type;
+    }
+
+    public int getEpicId() {
+        return epicId;
+    }
+
+    public void setEpic(Epic epic) {
+        this.epic = epic;
     }
 
     @Override

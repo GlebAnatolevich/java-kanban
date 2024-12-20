@@ -188,6 +188,10 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
                         if (id > maxId) {
                             maxId = id;
                         }
+                        Epic foundEpic = fileBackedTaskManager.epics.get(subTask.getEpicId());
+                        subTask.setEpic(foundEpic);
+                        foundEpic.addTask(subTask);
+                        fileBackedTaskManager.epics.put(foundEpic.getId(), foundEpic);
                         fileBackedTaskManager.subTasks.put(id, subTask);
                         break;
 
@@ -203,12 +207,6 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
                 }
             }
         }
-
-        for (SubTask subTask : fileBackedTaskManager.subTasks.values()) {
-            int epicId = subTask.getEpicId();
-            fileBackedTaskManager.epics.get(epicId).addTask(subTask);
-        }
-
         fileBackedTaskManager.seq = maxId;
         return fileBackedTaskManager;
     }
