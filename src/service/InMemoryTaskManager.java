@@ -14,7 +14,7 @@ public class InMemoryTaskManager implements TaskManager {
     final HashMap<Integer, Epic> epics = new HashMap<>();
     final HashMap<Integer, SubTask> subTasks = new HashMap<>();
     private final HistoryManager historyManager = Managers.getDefaultHistory();
-    int seq = 0;
+    protected int seq = 0;
 
     private int generateId() {
         return ++seq;
