@@ -3,16 +3,15 @@ package model;
 public class SubTask extends Task {
     private Epic epic;
     private Type type = Type.SUBTASK;
-    private int epicId;
 
     public SubTask(Epic epic, String name, Status status, String description) {
         super(name, status, description);
         this.epic = epic;
     }
 
-    public SubTask(int id, String name, Status status, String description, int epicId) { // конструктор для менеджера
+    public SubTask(int id, Epic epic, String name, Status status, String description) { // конструктор для менеджера
         super(id, name, status, description);
-        this.epicId = epicId;
+        this.epic = epic;
     }
 
     public Epic getEpicFromSubTasks() {
@@ -22,10 +21,6 @@ public class SubTask extends Task {
     @Override
     public Type getType() {
         return type;
-    }
-
-    public int getEpicId() {
-        return epicId;
     }
 
     public void setEpic(Epic epic) {

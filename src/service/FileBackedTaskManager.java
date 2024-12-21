@@ -140,7 +140,10 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
         if (type == TASK) {
             return new Task(id, name, status, description);
         } else if (type == SUBTASK) {
-            return new SubTask(id, name, status, description, epicId);
+            Epic epic = getEpic(epicId);
+            SubTask subTask = new SubTask(id, epic, name, status, description);
+            epic.addTask(subTask);
+            return subTask;
         } else if (type == EPIC) {
             return new Epic(id, name, status, description);
         }
@@ -156,55 +159,23 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
             throw new ManagerLoadException("Невозможно прочитать файл");
         }
         String[] lines = data.split("\n");
-        boolean isName = true;
-        boolean isTask = true;
         int maxId = 0;
-        int id;
-
-        for (String line : lines) {
-            if (isName) {
-                isName = false;
-                continue;
+        for (int i = 1; i < lines.length; i++) {
+            Task task = fileBackedTaskManager.fromString(lines[i]);
+            int id = task.getId();
+            if (id > maxId) {
+                maxId = id;
             }
-            if (line.isEmpty() || line.equals("\r")) {
-                isTask = false;
-                continue;
-            }
-            if (isTask) {
-                Type type = valueOf(line.split(",")[1]);
-                switch (type) {
-                    case EPIC:
-                        Epic epic = (Epic) fileBackedTaskManager.fromString(line);
-                        id = epic.getId();
-                        if (id > maxId) {
-                            maxId = id;
-                        }
-                        fileBackedTaskManager.epics.put(id, epic);
-                        break;
-
-                    case SUBTASK:
-                        SubTask subTask = (SubTask) fileBackedTaskManager.fromString(line);
-                        id = subTask.getId();
-                        if (id > maxId) {
-                            maxId = id;
-                        }
-                        Epic foundEpic = fileBackedTaskManager.epics.get(subTask.getEpicId());
-                        subTask.setEpic(foundEpic);
-                        foundEpic.addTask(subTask);
-                        fileBackedTaskManager.epics.put(foundEpic.getId(), foundEpic);
-                        fileBackedTaskManager.subTasks.put(id, subTask);
-                        break;
-
-                    case TASK:
-                        Task task = fileBackedTaskManager.fromString(line);
-
-                        id = task.getId();
-                        if (id > maxId) {
-                            maxId = id;
-                        }
-                        fileBackedTaskManager.tasks.put(id, task);
-                        break;
-                }
+            switch (task.getType()) {
+                case EPIC:
+                    fileBackedTaskManager.epics.put(id, (Epic) task);
+                    break;
+                case SUBTASK:
+                    fileBackedTaskManager.subTasks.put(id, (SubTask) task);
+                    break;
+                case TASK:
+                    fileBackedTaskManager.tasks.put(id, task);
+                    break;
             }
         }
         fileBackedTaskManager.seq = maxId;

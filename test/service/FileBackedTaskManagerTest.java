@@ -67,7 +67,6 @@ public class FileBackedTaskManagerTest {
         assertEquals(subTasksFromFile.getFirst().getStatus(), subTasks.getFirst().getStatus());
         assertEquals(subTasksFromFile.getFirst().getDescription(), subTasks.getFirst().getDescription());
         assertEquals(subTasksFromFile.getFirst().getEpicFromSubTasks(), subTasks.getFirst().getEpicFromSubTasks());
-        //assertEquals(subTasksFromFile.getFirst().getEpicId(), subTasks.getFirst().getEpicId());
     }
 
     @Test
