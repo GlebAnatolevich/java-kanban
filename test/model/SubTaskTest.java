@@ -3,26 +3,30 @@ package model;
 import org.junit.jupiter.api.Test;
 import service.InMemoryTaskManager;
 
+import java.time.Duration;
+import java.time.LocalDateTime;
+
 import static model.Status.NEW;
 import static org.junit.jupiter.api.Assertions.*;
 
 class SubTaskTest {
 
-    private InMemoryTaskManager taskManager = new InMemoryTaskManager();
+    private final InMemoryTaskManager taskManager = new InMemoryTaskManager();
+    final Epic epic = new Epic(1,"задача 111", NEW, "описание задачи 111",
+            Duration.ofMinutes(10), LocalDateTime.of(2024,12,25,15,0));
+    final SubTask subTask2 = new SubTask(2,epic,"задача 111", NEW, "описание задачи 111",
+            Duration.ofMinutes(180), LocalDateTime.of(2024,12,25,12,0));
 
     @Test
     public void subTasksShouldBeEqual_IfIdsEqual() {
 
-        Epic epic = taskManager.createEpic(new Epic("Эпик1", NEW, "Отремонтировать машину"));
-
-        SubTask subTask1 = taskManager.createSubTask(new SubTask(epic, "Подзадача1", NEW, "Заказать запчасти"));
-        SubTask subTask2 = taskManager.createSubTask(new SubTask(epic, "Подзадача2", NEW, "Заказать доставку"));
-        SubTask subTask3 = taskManager.createSubTask(new SubTask(epic, "Подзадача3", NEW, "Отвезти машину в сервис"));
-        int subTaskId = subTask1.getId();
+        taskManager.createEpic(epic);
+        taskManager.createSubTask(subTask2);
+        int subTaskId = subTask2.getId();
         SubTask savedSubTask = taskManager.getSubTask(subTaskId);
 
         assertNotNull(savedSubTask, "Подзадача не найдена");
-        assertEquals(subTask1, savedSubTask, "Подзадачи не совпадают");
+        assertEquals(subTask2, savedSubTask, "Подзадачи не совпадают");
 
         Epic gettedEpic = subTask2.getEpicFromSubTasks();
 

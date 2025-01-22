@@ -3,6 +3,8 @@ import model.SubTask;
 import model.Task;
 import service.InMemoryTaskManager;
 
+import java.time.Duration;
+import java.time.LocalDateTime;
 import java.util.List;
 
 import static model.Status.*;
@@ -11,8 +13,14 @@ public class Main {
 
     public static void main(String[] args) {
         InMemoryTaskManager taskManager = new InMemoryTaskManager();
-        Task task1 = taskManager.create(new Task("задача 111", NEW, "описание задачи 111"));
-        Task task2 = taskManager.create(new Task("задача 222", IN_PROGRESS, "описание задачи 222"));
+        Task task1 = taskManager.create(new Task(1,"задача 111", NEW, "описание задачи 111",
+                Duration.ofMinutes(120), LocalDateTime.of(2024,12,24,12,0)));
+        Task task2 = taskManager.create(new Task(2,"задача 111", NEW, "описание задачи 111",
+                Duration.ofMinutes(10), LocalDateTime.of(2024,12,25,15,0)));
+        Task task3 = taskManager.create(new Task(3,"задача 111", NEW, "описание задачи 111",
+                Duration.ofMinutes(180), LocalDateTime.of(2024,12,25,12,0)));
+
+        /*Task task2 = taskManager.create(new Task("задача 222", IN_PROGRESS, "описание задачи 222"));
         Epic epic1 = taskManager.createEpic(new Epic("эпик 111 с 1 подзадачей", NEW, "описание " +
                 "эпика 111"));
         Epic epic2 = taskManager.createEpic(new Epic("эпик 222 с 2 подзадачами", NEW, "описание " +
@@ -100,6 +108,7 @@ public class Main {
         List<Task> history2 = taskManager.getHistory();
         for (Task task : history2) {
             System.out.println(task);
-        }
+        }*/
+        System.out.println(taskManager.getPrioritizedTasks());
     }
 }
