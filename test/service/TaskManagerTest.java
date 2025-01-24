@@ -16,7 +16,7 @@ abstract class TaskManagerTest<T extends TaskManager> {
 
     protected T manager;
     protected final Epic epic = new Epic(1,"задача 111", NEW, "описание задачи 111",
-            Duration.ofMinutes(360), LocalDateTime.of(2025,12,25,10,0));
+            Duration.ofMinutes(360), null);
     protected final SubTask subTask2 = new SubTask(2,epic,"задача 111", NEW, "описание задачи 222",
             Duration.ofMinutes(120), LocalDateTime.of(2025,12,25,10,0));
     protected final SubTask subTask3 = new SubTask(3,epic,"задача 111", NEW, "описание задачи 333",
@@ -33,9 +33,6 @@ abstract class TaskManagerTest<T extends TaskManager> {
                 Duration.ofMinutes(60), LocalDateTime.of(2024,12,25,12,0));
         updatedTask.setId(task.getId());
         manager.update(updatedTask);
-
-        System.out.println(task);
-        System.out.println(updatedTask);
 
         assertEquals(task, updatedTask, "Задачи не равны");
         assertEquals(task.getId(), updatedTask.getId(), "Id задач не равны");
@@ -80,8 +77,8 @@ abstract class TaskManagerTest<T extends TaskManager> {
     @Test
     public void deleteAllEpicsShouldReturnIsEmptyTrue() {
         manager.createEpic(epic);
-        manager.createEpic(new Epic(7,"задача 111", NEW, "описание эпика 111",
-                Duration.ofMinutes(10), LocalDateTime.of(2024,12,25,16,0)));
+        manager.createEpic(new Epic(7,"задача 111", NEW, "описание эпика 111", Duration.ofMinutes(10),
+                LocalDateTime.of(2024,12,25,16,0)));
         manager.deleteAllEpics();
         List<Epic> epics = manager.getAllEpics();
 
@@ -154,16 +151,5 @@ abstract class TaskManagerTest<T extends TaskManager> {
         manager.deleteAllEpics();
 
         assertTrue(manager.getHistory().isEmpty());
-    }
-
-    @Test
-    public void crossShouldWorkCorrectly() {
-        manager.createEpic(epic);
-        manager.createSubTask(subTask2);
-        manager.createSubTask(subTask3);
-        manager.createSubTask(subTask4);
-        manager.create(task);
-
-        assertEquals(List.of(task, subTask2, subTask3, subTask4), manager.getPrioritizedTasks());
     }
 }

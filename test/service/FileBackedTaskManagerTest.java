@@ -1,6 +1,5 @@
 package service;
 
-import exception.ManagerLoadException;
 import model.Epic;
 import model.SubTask;
 import model.Task;
@@ -9,27 +8,14 @@ import org.junit.jupiter.api.Test;
 
 import java.io.File;
 import java.io.IOException;
-import java.time.Duration;
-import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
 
-import static model.Status.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class FileBackedTaskManagerTest extends TaskManagerTest<FileBackedTaskManager> {
-    File file = File.createTempFile("testfile", ".csv");
 
-    private final Epic epic = new Epic(1,"задача 111", NEW, "описание задачи 111",
-            Duration.ofMinutes(100), LocalDateTime.of(2024,12,25,15,0));
-    private final SubTask subTask2 = new SubTask(2,epic,"задача 111", NEW, "описание задачи 111",
-            Duration.ofMinutes(50), LocalDateTime.of(2024,12,25,15,0));
-    private final SubTask subTask3 = new SubTask(3,epic,"задача 111", NEW, "описание задачи 111",
-            Duration.ofMinutes(50), LocalDateTime.of(2024,12,25,15,50));
-    private final SubTask subTask4 = new SubTask(4,epic,"задача 111", NEW, "описание задачи 111",
-            Duration.ofMinutes(180), LocalDateTime.of(2024,12,28,12,0));
-    private final Task task = new Task(5,"задача 111", NEW, "описание задачи 111",
-            Duration.ofMinutes(120), LocalDateTime.of(2024,12,24,12,0));
+    File file = File.createTempFile("testfile", ".csv");
 
     public FileBackedTaskManagerTest() throws IOException {
     }
@@ -40,11 +26,11 @@ public class FileBackedTaskManagerTest extends TaskManagerTest<FileBackedTaskMan
     }
 
     @Test
-    public void saveAndLoadFromFileShouldMakeCorrect() throws ManagerLoadException {
-        Epic epicOne = manager.createEpic(epic);
-        SubTask subTaskOne = manager.createSubTask(subTask2);
-        SubTask subTaskTwo = manager.createSubTask(subTask3);
-        Task taskOne = manager.create(task);
+    public void saveAndLoadFromFileShouldMakeCorrect() {
+        manager.createEpic(epic);
+        manager.createSubTask(subTask2);
+        manager.createSubTask(subTask3);
+        manager.create(task);
 
         TaskManager managerFromFile = FileBackedTaskManager.loadFromFile(file);
 
@@ -55,10 +41,8 @@ public class FileBackedTaskManagerTest extends TaskManagerTest<FileBackedTaskMan
         List<SubTask> subTasks = manager.getAllSubTasks();
         List<SubTask> subTasksFromFile = managerFromFile.getAllSubTasks();
 
-        System.out.println(taskOne);
-        System.out.println(epicOne);
-        System.out.println(subTaskOne);
-        System.out.println(subTaskTwo);
+        List<Task> managerPrioritizedTasks = manager.getPrioritizedTasks();
+        List<Task> managerFromFilePrioritizedTasks = managerFromFile.getPrioritizedTasks();
 
         assertEquals(tasksFromFile, tasks);
         assertEquals(epicsFromFile, epics);
@@ -68,6 +52,9 @@ public class FileBackedTaskManagerTest extends TaskManagerTest<FileBackedTaskMan
         assertEquals(tasksFromFile.getFirst().getName(), tasks.getFirst().getName());
         assertEquals(tasksFromFile.getFirst().getStatus(), tasks.getFirst().getStatus());
         assertEquals(tasksFromFile.getFirst().getDescription(), tasks.getFirst().getDescription());
+        assertEquals(tasksFromFile.getFirst().getStartTime(), tasks.getFirst().getStartTime());
+        assertEquals(tasksFromFile.getFirst().getDuration(), tasks.getFirst().getDuration());
+        assertEquals(tasksFromFile.getFirst().getEndTime(), tasks.getFirst().getEndTime());
 
         assertEquals(epicsFromFile.getFirst().getId(), epics.getFirst().getId());
         assertEquals(epicsFromFile.getFirst().getType(), epics.getFirst().getType());
@@ -75,6 +62,9 @@ public class FileBackedTaskManagerTest extends TaskManagerTest<FileBackedTaskMan
         assertEquals(epicsFromFile.getFirst().getStatus(), epics.getFirst().getStatus());
         assertEquals(epicsFromFile.getFirst().getDescription(), epics.getFirst().getDescription());
         assertEquals(epicsFromFile.getFirst().getSubTasks(), epics.getFirst().getSubTasks());
+        assertEquals(epicsFromFile.getFirst().getStartTime(), epics.getFirst().getStartTime());
+        assertEquals(epicsFromFile.getFirst().getDuration(), epics.getFirst().getDuration());
+        assertEquals(epicsFromFile.getFirst().getEndTime(), epics.getFirst().getEndTime());
 
         assertEquals(subTasksFromFile.getFirst().getId(), subTasks.getFirst().getId());
         assertEquals(subTasksFromFile.getFirst().getType(), subTasks.getFirst().getType());
@@ -82,10 +72,15 @@ public class FileBackedTaskManagerTest extends TaskManagerTest<FileBackedTaskMan
         assertEquals(subTasksFromFile.getFirst().getStatus(), subTasks.getFirst().getStatus());
         assertEquals(subTasksFromFile.getFirst().getDescription(), subTasks.getFirst().getDescription());
         assertEquals(subTasksFromFile.getFirst().getEpicFromSubTasks(), subTasks.getFirst().getEpicFromSubTasks());
+        assertEquals(subTasksFromFile.getFirst().getStartTime(), subTasks.getFirst().getStartTime());
+        assertEquals(subTasksFromFile.getFirst().getDuration(), subTasks.getFirst().getDuration());
+        assertEquals(subTasksFromFile.getFirst().getEndTime(), subTasks.getFirst().getEndTime());
+
+        assertEquals(managerFromFilePrioritizedTasks, managerPrioritizedTasks);
     }
 
     @Test
-    public void saveAndLoadFromFileShouldSaveAndLoadEmptyTasks() throws ManagerLoadException {
+    public void saveAndLoadFromFileShouldSaveAndLoadEmptyTasks() {
         TaskManager managerFromFile = FileBackedTaskManager.loadFromFile(file);
 
         assertEquals(Collections.EMPTY_LIST, managerFromFile.getAllTasks());

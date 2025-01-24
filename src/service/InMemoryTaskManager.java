@@ -25,9 +25,13 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public Task create(Task task) {
+        if (!cross(task)) {
             task.setId(generateId());
             tasks.put(task.getId(), task);
-            addTaskToPrioritizedList(task);
+            prioritizedTasks.add(task);
+        } else {
+            throw new TaskConflictException("Две задачи не могут выполняться одновременно");
+        }
         return task;
     }
 
@@ -44,13 +48,17 @@ public class InMemoryTaskManager implements TaskManager {
         if (subTask.getEpicFromSubTasks() == null || !epics.containsKey(subTask.getEpicFromSubTasks().getId())) {
             return null;
         }
-        subTask.setId(generateId());
-        subTasks.put(subTask.getId(), subTask);
-        addTaskToPrioritizedList(subTask);
-        Epic epic = epics.get(subTask.getEpicFromSubTasks().getId());
-        epic.addTask(subTask);
-        calculateStatus(epic);
-        calculateEpicTime(epic);
+        if (!cross(subTask)) {
+            subTask.setId(generateId());
+            subTasks.put(subTask.getId(), subTask);
+            prioritizedTasks.add(subTask);
+            Epic epic = epics.get(subTask.getEpicFromSubTasks().getId());
+            epic.addTask(subTask);
+            calculateStatus(epic);
+            calculateEpicTime(epic);
+        } else {
+            throw new TaskConflictException("Две задачи не могут выполняться одновременно");
+        }
         return subTask;
     }
 
@@ -86,8 +94,13 @@ public class InMemoryTaskManager implements TaskManager {
         if (!tasks.containsKey(task.getId())) {
             return;
         }
-        tasks.put(task.getId(), task);
-        addTaskToPrioritizedList(task);
+        if (!cross(task)) {
+            tasks.put(task.getId(), task);
+            prioritizedTasks.remove(task);
+            prioritizedTasks.add(task);
+        } else {
+            throw new TaskConflictException("Две задачи не могут выполняться одновременно");
+        }
     }
 
     @Override
@@ -107,21 +120,26 @@ public class InMemoryTaskManager implements TaskManager {
             return;
         } // (если в Х-Т подзадач нет такой подзадачи) ИЛИ (если эпик этой подзадачи = null) ИЛИ (если в Х-Т эпиков нет
         // эпика, в состав которого входит подзадача) ----> выходим из метода
-        SubTask subTaskRemoved = subTasks.get(subTask.getId()); // получили старую подзадачу из Х-Т
-        Epic savedEpic = epics.get(subTask.getEpicFromSubTasks().getId()); // получили эпик из Х-Т
-        savedEpic.removeTask(subTaskRemoved); // удалили старую подзадачу из списка подзадач эпика
-        savedEpic.addTask(subTask); // добавили новую подзадачу в список подзадач эпика
-        subTasks.put(subTask.getId(), subTask); // обновили подзадачу в Х-Т подзадач
-        calculateStatus(savedEpic);
-        calculateEpicTime(savedEpic);
-        addTaskToPrioritizedList(subTask);
+        if (!cross(subTask)) {
+            SubTask subTaskRemoved = subTasks.get(subTask.getId()); // получили старую подзадачу из Х-Т
+            Epic savedEpic = epics.get(subTask.getEpicFromSubTasks().getId()); // получили эпик из Х-Т
+            savedEpic.removeTask(subTaskRemoved); // удалили старую подзадачу из списка подзадач эпика
+            savedEpic.addTask(subTask); // добавили новую подзадачу в список подзадач эпика
+            subTasks.put(subTask.getId(), subTask); // обновили подзадачу в Х-Т подзадач
+            calculateStatus(savedEpic);
+            calculateEpicTime(savedEpic);
+            prioritizedTasks.remove(subTask);
+            prioritizedTasks.add(subTask);
+        } else {
+            throw new TaskConflictException("Две задачи не могут выполняться одновременно");
+        }
     }
 
     @Override
     public void delete(int id) {
+        prioritizedTasks.remove(tasks.get(id));
         tasks.remove(id);
         historyManager.removeTask(id);
-        prioritizedTasks.removeIf(task -> task.getId() == id);
     }
 
     @Override
@@ -252,16 +270,9 @@ public class InMemoryTaskManager implements TaskManager {
         return new ArrayList<>(prioritizedTasks);
     }
 
-    public void addTaskToPrioritizedList(Task task) {
-        if (!cross(task)) {
-            prioritizedTasks.add(task);
-        } else {
-            throw new TaskConflictException("Две задачи не могут выполняться одновременно");
-        }
-    }
-
     private boolean cross(Task task) { // проверка на пересечение во времени
         return prioritizedTasks.stream()
+                .filter(taskValue -> taskValue.getId() != task.getId())
                 .anyMatch(taskValue ->
                         taskValue.getStartTime().isBefore(task.getStartTime())
                                 && taskValue.getEndTime().isAfter(task.getEndTime())
@@ -275,19 +286,27 @@ public class InMemoryTaskManager implements TaskManager {
 
     private void calculateEpicTime(Epic epic) {
         List<SubTask> subTasks = getSubTasksOfEpic(epic.getId());
-        LocalDateTime startTime = subTasks.getFirst().getStartTime(); // время старта первой в списке подзадачи
-        LocalDateTime endTime = subTasks.getFirst().getEndTime(); // время окончания первой в списке подзадачи
+        Duration duration = Duration.ofMinutes(0);
+        if (subTasks.isEmpty()) {
+            epic.setStartTime(null);
+            epic.setEndTime(null);
+        } else {
+            LocalDateTime startTime = subTasks.getFirst().getStartTime(); // время старта первой в списке подзадачи
+            LocalDateTime endTime = subTasks.getFirst().getEndTime(); // время окончания первой в списке подзадачи
 
-        for (SubTask subTask : subTasks) {
-            if (subTask.getStartTime().isBefore(startTime)) {
-                startTime = subTask.getStartTime();
-            } else if (subTask.getEndTime().isAfter(endTime)) {
-                endTime = subTask.getEndTime();
+            for (SubTask subTask : subTasks) {
+                if (subTask.getStartTime().isBefore(startTime)) {
+                    startTime = subTask.getStartTime();
+                } else if (subTask.getEndTime().isAfter(endTime)) {
+                    endTime = subTask.getEndTime();
+                }
             }
+            epic.setStartTime(startTime);
+            epic.setEndTime(endTime);
+            for (SubTask subTask : subTasks) {
+                duration = duration.plus(subTask.getDuration());
+            }
+            epic.setDuration(duration);
         }
-        epic.setStartTime(startTime);
-        epic.setEndTime(endTime);
-        Duration duration = Duration.between(startTime, endTime);
-        epic.setDuration(duration);
     }
 }

@@ -5,9 +5,7 @@ import java.time.LocalDateTime;
 
 public class SubTask extends Task {
     private Epic epic;
-    private Type type = Type.SUBTASK;
-    private Duration duration;
-    private LocalDateTime startTime;
+    private final Type type = Type.SUBTASK;
 
     public SubTask(Epic epic, String name, Status status, String description) {
         super(name, status, description);
@@ -54,7 +52,7 @@ public class SubTask extends Task {
 
     @Override
     public String toStringForFile() {
-        return String.format("%s,%s,%s,%s,%s,%s,%s,%s", getId(), getType(), getName(), getStatus(), getDescription(),
-                getStartTime(), getDuration(), epic.getId());
+        return String.format("%s,%s,%s,%s,%s,%s,%s,%s,%s", id, type, name, status, description, startTime, duration,
+                getEndTime(), epic.getId());
     }
 }

@@ -88,11 +88,13 @@ public class Task {
         return duration;
     }
 
+    public void setDuration(Duration duration) {
+        this.duration = duration;
+    }
+
     public LocalDateTime getEndTime() {
         return startTime.plus(duration);
     }
-
-    //DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy.MM.dd-HH:mm");
 
     @Override
     public boolean equals(Object o) {
@@ -120,7 +122,7 @@ public class Task {
     }
 
     public String toStringForFile() {
-        return String.format("%s,%s,%s,%s,%s,%s,%s,%s", id, type, name, status, description,
-                startTime, duration, "");
+        return String.format("%s,%s,%s,%s,%s,%s,%s,%s,%s", id, type, name, status, description,
+                startTime, duration, getEndTime(), "");
     }
 }

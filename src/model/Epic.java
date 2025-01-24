@@ -7,9 +7,7 @@ import java.util.List;
 
 public class Epic extends Task {
     private final List<SubTask> subTasks = new ArrayList<>();
-    private Type type = Type.EPIC;
-    private Duration duration;
-    private LocalDateTime startTime;
+    private final Type type = Type.EPIC;
     private LocalDateTime endTime;
 
     public Epic(String name, Status status, String description) {
@@ -42,12 +40,13 @@ public class Epic extends Task {
         return type;
     }
 
-    public void setEndTime(LocalDateTime endTime) {
-        this.endTime = endTime;
+    @Override
+    public LocalDateTime getEndTime() {
+        return endTime;
     }
 
-    public void setDuration(Duration duration) {
-        this.duration = duration;
+    public void setEndTime(LocalDateTime endTime) {
+        this.endTime = endTime;
     }
 
     @Override
@@ -60,13 +59,13 @@ public class Epic extends Task {
                 ", description='" + description + '\'' +
                 ", startTime=" + startTime +
                 ", duration=" + duration +
-                ", endTime=" + getEndTime() +
+                ", endTime=" + endTime +
                 '}';
     }
 
     @Override
     public String toStringForFile() {
-        return String.format("%s,%s,%s,%s,%s,%s,%s,%s", getId(), getType(), getName(), getStatus(), getDescription(),
-                getStartTime(), getDuration(), "");
+        return String.format("%s,%s,%s,%s,%s,%s,%s,%s,%s", id, type, name, status, description, startTime, duration,
+                endTime, "");
     }
 }
