@@ -6,6 +6,8 @@ import model.Task;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.time.Duration;
+import java.time.LocalDateTime;
 import java.util.List;
 
 import static model.Status.*;
@@ -16,9 +18,16 @@ class InMemoryHistoryManagerTest {
     private TaskManager taskManager;
     private HistoryManager historyManager;
 
-    private Task task1 = new Task("Задача1", NEW, "Забрать товар");
-    private Epic epic1 = new Epic("Эпик1", NEW, "Разработать программу");
-    private SubTask subTask1 = new SubTask(epic1,"Подзадача1", NEW, "Составить структуру");
+    private final Epic epic = new Epic(1,"задача 111", NEW, "описание задачи 111",
+            Duration.ofMinutes(360), LocalDateTime.of(2025,12,25,10,0));
+    private final SubTask subTask2 = new SubTask(2,epic,"задача 111", NEW, "описание задачи 222",
+            Duration.ofMinutes(120), LocalDateTime.of(2025,12,25,10,0));
+    private final SubTask subTask3 = new SubTask(3,epic,"задача 111", NEW, "описание задачи 333",
+            Duration.ofMinutes(120), LocalDateTime.of(2025,12,25,12,0));
+    private final SubTask subTask4 = new SubTask(4,epic,"задача 111", NEW, "описание задачи 444",
+            Duration.ofMinutes(120), LocalDateTime.of(2025,12,25,14,0));
+    private final Task task = new Task(5,"задача 111", NEW, "описание задачи 111",
+            Duration.ofMinutes(120), LocalDateTime.of(2024,12,24,12,0));
 
     @BeforeEach
     public void beforeEach() {
@@ -30,7 +39,8 @@ class InMemoryHistoryManagerTest {
     public void getHistoryShouldReturnListOfCorrectViewsAmount() {
 
         for (int i = 0; i < 15; i++) {
-            taskManager.create(new Task("Задача", NEW, "Записаться на стрижку"));
+            taskManager.create(new Task(6,"задача 111", NEW, "описание задачи 111",
+                    Duration.ofMinutes(120), LocalDateTime.of(2024,12,24,12,0)));
         }
 
         List<Task> tasks = taskManager.getAllTasks();
@@ -43,73 +53,71 @@ class InMemoryHistoryManagerTest {
 
     @Test
     public void getHistoryShouldReturnPreviousTaskAfterUpdate() {
-        Task task = new Task("Задача1", NEW, "Записаться на стрижку");
         taskManager.create(task);
         taskManager.getTask(task.getId()); // для пополнения истории просмотров
 
-        Task updatedTask = new Task("Задача уже не 1", IN_PROGRESS, "Записаться на стрижку в тот барбершоп");
+        Task updatedTask = new Task(6,"задача 666", NEW, "описание задачи 666",
+                Duration.ofMinutes(120), LocalDateTime.of(2024,12,23,12,0));
         updatedTask.setId(task.getId());
         taskManager.update(updatedTask);
 
         List<Task> tasks = taskManager.getHistory();
-        Task prevTask = tasks.get(0);
+        Task prevTask = tasks.getFirst();
 
         assertEquals(task.getName(), prevTask.getName(), "Сохранена не предыдущая версия");
         assertEquals(task.getDescription(), prevTask.getDescription(), "Сохранена не предыдущая версия");
-        assertTrue(NEW == prevTask.getStatus(), "Сохранена не предыдущая версия");
+        assertSame(NEW, prevTask.getStatus(), "Сохранена не предыдущая версия");
     }
 
     @Test
     public void getHistoryShouldReturnPreviousEpicAfterUpdate() {
-        Epic epic = new Epic("Эпик1", NEW, "Записаться на стрижку");
         taskManager.createEpic(epic);
         taskManager.getEpic(epic.getId()); // для пополнения истории просмотров
 
-        Epic updatedEpic = new Epic("Эпик уже не 1", IN_PROGRESS, "Записаться на стрижку в тот барбершоп");
+        Epic updatedEpic = new Epic(7,"эпик 777", NEW, "описание эпика 777",
+                Duration.ofMinutes(360), LocalDateTime.of(2026,12,25,10,0));
         updatedEpic.setId(epic.getId());
         taskManager.updateEpic(updatedEpic);
 
         List<Task> tasks = taskManager.getHistory();
-        Task prevTask = tasks.get(0);
+        Task prevTask = tasks.getFirst();
 
         assertEquals(epic.getName(), prevTask.getName(), "Сохранена не предыдущая версия");
         assertEquals(epic.getDescription(), prevTask.getDescription(), "Сохранена не предыдущая версия");
-        assertTrue(NEW == prevTask.getStatus(), "Сохранена не предыдущая версия, статус эпика не задается, а пересчитывается программно");
+        assertSame(NEW, prevTask.getStatus(), "Сохранена не предыдущая версия, статус эпика не задается, а пересчитывается программно");
     }
 
     @Test
     public void getHistoryShouldReturnPreviousSubTaskAfterUpdate() {
-        Epic epic = new Epic("Эпик1", NEW, "Записаться на стрижку");
         taskManager.createEpic(epic);
 
-        SubTask subTask = new SubTask(epic,"Подзадача1", NEW, "Скачать приложение");
-        taskManager.createSubTask(subTask);
-        taskManager.getSubTask(subTask.getId()); // для пополнения истории просмотров
+        taskManager.createSubTask(subTask2);
+        taskManager.getSubTask(subTask2.getId()); // для пополнения истории просмотров
 
-        SubTask updatedSubTask = new SubTask(epic,"Подзадача уже не 1", DONE, "Записаться на стрижку в тот барбершоп");
-        updatedSubTask.setId(subTask.getId());
+        SubTask updatedSubTask = subTask3;
+        updatedSubTask.setId(subTask2.getId());
         taskManager.updateSubTask(updatedSubTask);
 
         List<Task> tasks = taskManager.getHistory();
-        Task prevTask = tasks.get(0);
+        Task prevTask = tasks.getFirst();
 
-        assertEquals(subTask.getName(), prevTask.getName(), "Сохранена не предыдущая версия");
-        assertEquals(subTask.getDescription(), prevTask.getDescription(), "Сохранена не предыдущая версия");
-        assertTrue(NEW == prevTask.getStatus(), "Сохранена не предыдущая версия");
+        assertEquals(subTask2.getName(), prevTask.getName(), "Сохранена не предыдущая версия");
+        assertEquals(subTask2.getDescription(), prevTask.getDescription(), "Сохранена не предыдущая версия");
+        assertSame(NEW, prevTask.getStatus(), "Сохранена не предыдущая версия");
     }
 
     @Test
-    public void addTask_ShouldAddTaskToHistoryList() {
-        taskManager.create(task1);
-        taskManager.createEpic(epic1);
-        taskManager.createSubTask(subTask1);
+    public void addTask_ShouldAddTaskToHistoryListWithoutDouble() {
+        taskManager.create(task);
+        taskManager.createEpic(epic);
+        taskManager.createSubTask(subTask2);
 
-        historyManager.addTask(task1);
-        historyManager.addTask(epic1);
-        historyManager.addTask(subTask1);
-        historyManager.addTask(task1);
+        historyManager.addTask(task);
+        historyManager.addTask(epic);
+        historyManager.addTask(subTask2);
+        historyManager.addTask(task);
 
-        assertEquals(List.of(epic1, subTask1, task1), historyManager.getHistory(), "При добавлении задачи в " +
+        assertEquals(List.of(epic, subTask2, task), historyManager.getHistory(), "При добавлении задачи в " +
                 "историю просмотров возникла ошибка");
     }
 
@@ -126,19 +134,40 @@ class InMemoryHistoryManagerTest {
     }
 
     @Test
-    public void removeTask_ShouldRemoveTaskFromHistoryList() {
+    public void removeTaskFromBeginAndEndOfList_ShouldRemoveTaskFromHistoryList() {
+        taskManager.create(task);
+        taskManager.createEpic(epic);
+        taskManager.createSubTask(subTask2);
+
+        historyManager.addTask(task);
+        historyManager.addTask(epic);
+        historyManager.addTask(subTask2);
+
+        historyManager.removeTask(task.getId());
+        historyManager.removeTask(subTask2.getId());
+
+        assertEquals(List.of(epic), historyManager.getHistory(), "При удалении задачи из " +
+                "начала и конца истории просмотров возникла ошибка");
+    }
+
+    @Test
+    public void removeTaskFromMiddleOfList_ShouldRemoveTaskFromHistoryList() {
+        taskManager.create(task);
+        taskManager.createEpic(epic);
+        taskManager.createSubTask(subTask2);
+        Task task1 = new Task(9,"задача 999", NEW, "описание задачи 999",
+                Duration.ofMinutes(120), LocalDateTime.of(2024,12,28,12,0));
         taskManager.create(task1);
-        taskManager.createEpic(epic1);
-        taskManager.createSubTask(subTask1);
 
-        historyManager.addTask(task1);
-        historyManager.addTask(epic1);
-        historyManager.addTask(subTask1);
+        historyManager.addTask(task);
+        historyManager.addTask(epic);
+        historyManager.addTask(subTask2);
         historyManager.addTask(task1);
 
-        historyManager.removeTask(subTask1.getId());
+        historyManager.removeTask(epic.getId());
+        historyManager.removeTask(subTask2.getId());
 
-        assertEquals(List.of(epic1, task1), historyManager.getHistory(), "При удалении задачи из " +
-                "истории просмотров возникла ошибка");
+        assertEquals(List.of(task, task1), historyManager.getHistory(), "При удалении задачи из " +
+                "середины истории просмотров возникла ошибка");
     }
 }

@@ -8,6 +8,8 @@ import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.time.Duration;
+import java.time.LocalDateTime;
 
 import static model.Status.IN_PROGRESS;
 import static model.Status.NEW;
@@ -15,7 +17,7 @@ import static model.Type.*;
 
 public class FileBackedTaskManager extends InMemoryTaskManager {
     private final File file;
-    private static final String HEADER = "id,type,name,status,description,epic";
+    private static final String HEADER = "id,type,name,status,description,startTime,duration,endTime,epic";
 
     public FileBackedTaskManager(File file) {
         this.file = file;
@@ -132,20 +134,25 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
         String name = String.valueOf(elements[2]);
         Status status = Status.valueOf(elements[3]);
         String description = elements[4];
+        LocalDateTime startTime = LocalDateTime.parse(elements[5]);
+        Duration duration = Duration.parse(elements[6]);
+        LocalDateTime endTime = LocalDateTime.parse(elements[7]);
 
-        if (elements.length == 6) {
-            epicId = Integer.parseInt(elements[5]);
+        if (elements.length == 9) {
+            epicId = Integer.parseInt(elements[8]);
         }
 
         if (type == TASK) {
-            return new Task(id, name, status, description);
+            return new Task(id, name, status, description, duration, startTime);
         } else if (type == SUBTASK) {
-            Epic epic = getEpic(epicId);
-            SubTask subTask = new SubTask(id, epic, name, status, description);
+            Epic epic = epics.get(epicId);
+            SubTask subTask = new SubTask(id, epic, name, status, description, duration, startTime);
             epic.addTask(subTask);
             return subTask;
         } else if (type == EPIC) {
-            return new Epic(id, name, status, description);
+            Epic epic = new Epic(id, name, status, description, duration, startTime);
+            epic.setEndTime(endTime);
+            return epic;
         }
         return task;
     }
@@ -172,9 +179,11 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
                     break;
                 case SUBTASK:
                     fileBackedTaskManager.subTasks.put(id, (SubTask) task);
+                    fileBackedTaskManager.prioritizedTasks.add(task);
                     break;
                 case TASK:
                     fileBackedTaskManager.tasks.put(id, task);
+                    fileBackedTaskManager.prioritizedTasks.add(task);
                     break;
             }
         }
@@ -183,22 +192,30 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
     }
 
     public static void main(String[] args) {
-        FileBackedTaskManager taskManager = new FileBackedTaskManager(new File("Autosave","autosave.csv"));
-        Task task1 = taskManager.create(new Task("задача 111", NEW, "описание задачи 111"));
-        Task task2 = taskManager.create(new Task("задача 222", IN_PROGRESS, "описание задачи 222"));
-        Epic epic1 = taskManager.createEpic(new Epic("эпик 111 с 1 подзадачей", NEW, "описание " +
-                "эпика 111"));
-        Epic epic2 = taskManager.createEpic(new Epic("эпик 222 с 2 подзадачами", NEW, "описание " +
-                "эпика 222"));
-        SubTask subTask1 = taskManager.createSubTask(new SubTask(epic1, "подзадача 111", NEW,
-                "описание подзадачи 111"));
-        SubTask subTask2 = taskManager.createSubTask(new SubTask(epic2, "подзадача 222", NEW,
-                "описание подзадачи 222"));
-        SubTask subTask3 = taskManager.createSubTask(new SubTask(epic2, "подзадача 333", NEW,
-                "описание подзадачи 333"));
+        FileBackedTaskManager manager = new FileBackedTaskManager(new File("Autosave","autosave.csv"));
+        manager.create(new Task(1,"задача 111", NEW, "описание задачи 111",
+                Duration.ofMinutes(120), LocalDateTime.of(2026,12,24,12,0)));
+        manager.create(new Task(2,"задача 111", IN_PROGRESS, "описание задачи 111",
+                Duration.ofMinutes(10), LocalDateTime.of(2025,12,25,15,0)));
+        manager.create(new Task(3,"задача 111", NEW, "описание задачи 111",
+                Duration.ofMinutes(180), LocalDateTime.of(2024,12,25,12,0)));
 
-        System.out.println("Оставшиеся задачи:" + taskManager.getAllTasks());
-        System.out.println("Оставшиеся эпики:" + taskManager.getAllEpics());
-        System.out.println("Оставшиеся подзадачи:" + taskManager.getAllSubTasks());
+        Epic epic = manager.createEpic(new Epic(4, "задача 111", NEW, "описание задачи 111",
+                Duration.ofMinutes(60), null));
+
+        System.out.println(epic.getStartTime());
+        System.out.println(epic.getEndTime() + "\n");
+
+        manager.createSubTask(new SubTask(5, epic, "задача 111", NEW, "описание задачи 111",
+                Duration.ofMinutes(50), LocalDateTime.of(2027, 12, 25, 15, 10)));
+
+        System.out.println(epic.getStartTime());
+        System.out.println(epic.getEndTime());
+
+        System.out.println();
+
+        for (Task task : manager.getPrioritizedTasks()) {
+            System.out.println(task + "\n");
+        }
     }
 }

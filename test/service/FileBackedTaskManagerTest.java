@@ -11,16 +11,11 @@ import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
 
-import static model.Status.*;
 import static org.junit.jupiter.api.Assertions.*;
 
-public class FileBackedTaskManagerTest {
-    private FileBackedTaskManager manager;
-    File file = File.createTempFile("testfile", ".csv");
+public class FileBackedTaskManagerTest extends TaskManagerTest<FileBackedTaskManager> {
 
-    private Task task1 = new Task("Задача1", NEW, "Забрать товар");
-    private Epic epic1 = new Epic("Эпик1", DONE, "Разработать программу");
-    private SubTask subTask1 = new SubTask(epic1, "Подзадача1", DONE, "Составить структуру");
+    File file = File.createTempFile("testfile", ".csv");
 
     public FileBackedTaskManagerTest() throws IOException {
     }
@@ -32,9 +27,10 @@ public class FileBackedTaskManagerTest {
 
     @Test
     public void saveAndLoadFromFileShouldMakeCorrect() {
-        Task taskOne = manager.create(task1);
-        Epic epicOne = manager.createEpic(epic1);
-        SubTask subTaskOne = manager.createSubTask(subTask1);
+        manager.createEpic(epic);
+        manager.createSubTask(subTask2);
+        manager.createSubTask(subTask3);
+        manager.create(task);
 
         TaskManager managerFromFile = FileBackedTaskManager.loadFromFile(file);
 
@@ -45,6 +41,9 @@ public class FileBackedTaskManagerTest {
         List<SubTask> subTasks = manager.getAllSubTasks();
         List<SubTask> subTasksFromFile = managerFromFile.getAllSubTasks();
 
+        List<Task> managerPrioritizedTasks = manager.getPrioritizedTasks();
+        List<Task> managerFromFilePrioritizedTasks = managerFromFile.getPrioritizedTasks();
+
         assertEquals(tasksFromFile, tasks);
         assertEquals(epicsFromFile, epics);
 
@@ -53,6 +52,9 @@ public class FileBackedTaskManagerTest {
         assertEquals(tasksFromFile.getFirst().getName(), tasks.getFirst().getName());
         assertEquals(tasksFromFile.getFirst().getStatus(), tasks.getFirst().getStatus());
         assertEquals(tasksFromFile.getFirst().getDescription(), tasks.getFirst().getDescription());
+        assertEquals(tasksFromFile.getFirst().getStartTime(), tasks.getFirst().getStartTime());
+        assertEquals(tasksFromFile.getFirst().getDuration(), tasks.getFirst().getDuration());
+        assertEquals(tasksFromFile.getFirst().getEndTime(), tasks.getFirst().getEndTime());
 
         assertEquals(epicsFromFile.getFirst().getId(), epics.getFirst().getId());
         assertEquals(epicsFromFile.getFirst().getType(), epics.getFirst().getType());
@@ -60,6 +62,9 @@ public class FileBackedTaskManagerTest {
         assertEquals(epicsFromFile.getFirst().getStatus(), epics.getFirst().getStatus());
         assertEquals(epicsFromFile.getFirst().getDescription(), epics.getFirst().getDescription());
         assertEquals(epicsFromFile.getFirst().getSubTasks(), epics.getFirst().getSubTasks());
+        assertEquals(epicsFromFile.getFirst().getStartTime(), epics.getFirst().getStartTime());
+        assertEquals(epicsFromFile.getFirst().getDuration(), epics.getFirst().getDuration());
+        assertEquals(epicsFromFile.getFirst().getEndTime(), epics.getFirst().getEndTime());
 
         assertEquals(subTasksFromFile.getFirst().getId(), subTasks.getFirst().getId());
         assertEquals(subTasksFromFile.getFirst().getType(), subTasks.getFirst().getType());
@@ -67,6 +72,11 @@ public class FileBackedTaskManagerTest {
         assertEquals(subTasksFromFile.getFirst().getStatus(), subTasks.getFirst().getStatus());
         assertEquals(subTasksFromFile.getFirst().getDescription(), subTasks.getFirst().getDescription());
         assertEquals(subTasksFromFile.getFirst().getEpicFromSubTasks(), subTasks.getFirst().getEpicFromSubTasks());
+        assertEquals(subTasksFromFile.getFirst().getStartTime(), subTasks.getFirst().getStartTime());
+        assertEquals(subTasksFromFile.getFirst().getDuration(), subTasks.getFirst().getDuration());
+        assertEquals(subTasksFromFile.getFirst().getEndTime(), subTasks.getFirst().getEndTime());
+
+        assertEquals(managerFromFilePrioritizedTasks, managerPrioritizedTasks);
     }
 
     @Test
