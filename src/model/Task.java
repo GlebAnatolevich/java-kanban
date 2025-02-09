@@ -10,9 +10,9 @@ public class Task {
     protected String name;
     protected Status status;
     protected String description;
-    protected Type type = Type.TASK;
     protected Duration duration;
     protected LocalDateTime startTime;
+    private final Type type = Type.TASK;
 
     public Task(String name, Status status, String description) {
         this.name = name;

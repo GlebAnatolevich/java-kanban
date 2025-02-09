@@ -57,70 +57,80 @@ public class InMemoryTaskManager implements TaskManager {
     }
 
     @Override
-    public Task getTask(int id) {
+    public Task getTask(int id) throws NoSuchElementException {
         Task task = tasks.get(id);
         if (task != null) {
             historyManager.addTask(task); // добавляем задачу в конец истории просмотров
+        } else {
+            throw new NoSuchElementException("Такой задачи не существует");
         }
         return task;
     }
 
     @Override
-    public Epic getEpic(int id) {
+    public Epic getEpic(int id) throws NoSuchElementException {
         Epic epic = epics.get(id);
         if (epic != null) {
             historyManager.addTask(epic); // добавляем эпик в конец истории просмотров
+        } else {
+            throw new NoSuchElementException("Такого эпика не существует");
         }
         return epic;
     }
 
     @Override
-    public SubTask getSubTask(int id) {
+    public SubTask getSubTask(int id) throws NoSuchElementException {
         SubTask subTask = subTasks.get(id);
         if (subTask != null) {
             historyManager.addTask(subTask); // добавляем подзадачу в конец истории просмотров
+        } else {
+            throw new NoSuchElementException("Такой подзадачи не существует");
         }
         return subTask;
     }
 
     @Override
-    public void update(Task task) {
+    public void update(Task task) throws NoSuchElementException {
         if (!tasks.containsKey(task.getId())) {
-            return;
+            throw new NoSuchElementException("Такой задачи не существует");
+        } else {
+            cross(task);
+            tasks.put(task.getId(), task);
+            prioritizedTasks.remove(task);
+            prioritizedTasks.add(task);
         }
-        cross(task);
-        tasks.put(task.getId(), task);
-        prioritizedTasks.remove(task);
-        prioritizedTasks.add(task);
     }
 
     @Override
-    public void updateEpic(Epic epic) {
+    public void updateEpic(Epic epic) throws NoSuchElementException {
         if (!epics.containsKey(epic.getId())) {
-            return;
+            throw new NoSuchElementException("Такого эпика не существует");
+        } else {
+            Epic saved = epics.get(epic.getId());
+            saved.setName(epic.getName());
+            saved.setDescription(epic.getDescription());
         }
-        Epic saved = epics.get(epic.getId());
-        saved.setName(epic.getName());
-        saved.setDescription(epic.getDescription());
     }
 
     @Override
-    public void updateSubTask(SubTask subTask) {
-        if (!subTasks.containsKey(subTask.getId()) || subTask.getEpicFromSubTasks() == null
+    public void updateSubTask(SubTask subTask) throws NoSuchElementException {
+        if (subTask.getEpicFromSubTasks() == null
                 || !epics.containsKey(subTask.getEpicFromSubTasks().getId())) {
-            return;
-        } // (если в Х-Т подзадач нет такой подзадачи) ИЛИ (если эпик этой подзадачи = null) ИЛИ (если в Х-Т эпиков нет
-        // эпика, в состав которого входит подзадача) ----> выходим из метода
-        cross(subTask);
-        SubTask subTaskRemoved = subTasks.get(subTask.getId()); // получили старую подзадачу из Х-Т
-        Epic savedEpic = epics.get(subTask.getEpicFromSubTasks().getId()); // получили эпик из Х-Т
-        savedEpic.removeTask(subTaskRemoved); // удалили старую подзадачу из списка подзадач эпика
-        savedEpic.addTask(subTask); // добавили новую подзадачу в список подзадач эпика
-        subTasks.put(subTask.getId(), subTask); // обновили подзадачу в Х-Т подзадач
-        calculateStatus(savedEpic);
-        calculateEpicTime(savedEpic);
-        prioritizedTasks.remove(subTask);
-        prioritizedTasks.add(subTask);
+            throw new NoSuchElementException("Такого эпика не существует");
+        } else if (!subTasks.containsKey(subTask.getId())) {
+            throw new NoSuchElementException("Такой подзадачи не существует");
+        } else {
+            cross(subTask);
+            SubTask subTaskRemoved = subTasks.get(subTask.getId()); // получили старую подзадачу из Х-Т
+            Epic savedEpic = epics.get(subTask.getEpicFromSubTasks().getId()); // получили эпик из Х-Т
+            savedEpic.removeTask(subTaskRemoved); // удалили старую подзадачу из списка подзадач эпика
+            savedEpic.addTask(subTask); // добавили новую подзадачу в список подзадач эпика
+            subTasks.put(subTask.getId(), subTask); // обновили подзадачу в Х-Т подзадач
+            calculateStatus(savedEpic);
+            calculateEpicTime(savedEpic);
+            prioritizedTasks.remove(subTask);
+            prioritizedTasks.add(subTask);
+        }
     }
 
     @Override
@@ -222,11 +232,12 @@ public class InMemoryTaskManager implements TaskManager {
     }
 
     @Override
-    public List<SubTask> getSubTasksOfEpic(int id) {
+    public List<SubTask> getSubTasksOfEpic(int id) throws NoSuchElementException {
         if (!epics.containsKey(id) || epics.get(id) == null) {
-            return null;
+            throw new NoSuchElementException("Такой подзадачи не существует");
+        } else {
+            return new ArrayList<>(epics.get(id).getSubTasks());
         }
-        return new ArrayList<>(epics.get(id).getSubTasks());
     }
 
     private void calculateStatus(Epic epic) {
