@@ -1,4 +1,4 @@
-package server;
+package server.handlers;
 
 import com.google.gson.Gson;
 import com.sun.net.httpserver.HttpExchange;
@@ -12,7 +12,7 @@ import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.NoSuchElementException;
 
-class EpicHandler extends TaskHandler implements HttpHandler {
+public class EpicHandler extends TaskHandler implements HttpHandler {
 
     public EpicHandler(Gson gson, TaskManager manager) {
         super(gson, manager);
@@ -26,28 +26,26 @@ class EpicHandler extends TaskHandler implements HttpHandler {
         Endpoint endpoint = getEndpoint(requestMethod, url);
 
         switch (endpoint) {
-            case GET_EPICS -> sendText(h, manager.getAllEpics().toString());
+            case GET_EPICS -> sendText(h, gson.toJson(manager.getAllEpics()));
             case GET_EPIC_BY_ID -> {
                 try {
-                    manager.getEpic(Integer.parseInt(urlParts[urlParts.length - 1]));
+                    sendText(h, gson.toJson(manager.getEpic(Integer.parseInt(urlParts[urlParts.length - 1]))));
                 } catch (NoSuchElementException e) {
                     sendNotFound(h);
                 }
-                sendText(h, manager.getEpic(Integer.parseInt(urlParts[urlParts.length - 1])).toString());
             }
             case GET_EPIC_SUBTASKS -> {
                 try {
-                    manager.getSubTasksOfEpic(Integer.parseInt(urlParts[urlParts.length - 2]));
+                    sendText(h,gson.toJson(manager.getSubTasksOfEpic(Integer.parseInt(urlParts[urlParts.length - 2]))));
                 } catch (NoSuchElementException e) {
                     sendNotFound(h);
                 }
-                sendText(h, manager.getSubTasksOfEpic(Integer.parseInt(urlParts[urlParts.length - 2])).toString());
             }
             case POST_EPIC -> {
                 InputStream is = h.getRequestBody();
                 String epicStr = new String(is.readAllBytes(), StandardCharsets.UTF_8);
                 Epic epic = gson.fromJson(epicStr, Epic.class);
-                if (urlParts.length == 1) {
+                if (urlParts[urlParts.length - 1].equals("epics")) {
                     manager.createEpic(epic);
                 } else {
                     manager.updateEpic(epic);

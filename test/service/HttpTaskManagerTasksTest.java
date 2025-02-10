@@ -20,12 +20,27 @@ import java.util.List;
 
 import static model.Status.NEW;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 public class HttpTaskManagerTasksTest {
 
     TaskManager manager = new InMemoryTaskManager();
     HttpTaskServer taskServer = new HttpTaskServer(manager);
     Gson gson = HttpTaskServer.getGson();
+
+    final Epic epic1 = new Epic(1, "эпик 111", NEW, "описание эпика 111",
+            Duration.ofMinutes(120), LocalDateTime.of(2025, 12, 25, 10, 0));
+    final Epic epic2 = new Epic(2, "эпик 222", NEW, "описание эпика 222",
+            Duration.ofMinutes(120), LocalDateTime.of(2025, 12, 25, 12, 0));
+    final Epic epic3 = new Epic(3, "эпик 333", NEW, "описание эпика 333",
+            Duration.ofMinutes(120), LocalDateTime.of(2025, 12, 25, 14, 0));
+    final SubTask subTask2 = new SubTask(4, epic1, "задача 444", NEW, "описание задачи 444",
+            Duration.ofMinutes(120), LocalDateTime.of(2025, 12, 25, 10, 0));
+    final SubTask subTask3 = new SubTask(5, epic2, "задача 555", NEW, "описание задачи 555",
+            Duration.ofMinutes(120), LocalDateTime.of(2025, 12, 25, 12, 0));
+    final SubTask subTask4 = new SubTask(6, epic3, "задача 666", NEW, "описание задачи 666",
+            Duration.ofMinutes(120), LocalDateTime.of(2025, 12, 25, 14, 0));
+    final Task task = new Task(7, "задача 777", NEW, "описание задачи 777", Duration.ofMinutes(5), LocalDateTime.now());
 
     public HttpTaskManagerTasksTest() throws IOException {
     }
@@ -46,7 +61,6 @@ public class HttpTaskManagerTasksTest {
     @Test
     public void testGetAllTasks() throws IOException, InterruptedException {
         // создаём задачу
-        Task task = new Task(1, "задача 111", NEW, "описание задачи 111", Duration.ofMinutes(5), LocalDateTime.now());
         manager.create(task);
 
         // создаём HTTP-клиент и запрос
@@ -90,6 +104,30 @@ public class HttpTaskManagerTasksTest {
     }
 
     @Test
+    public void testCreateTask() throws IOException, InterruptedException {
+        Task task = new Task("Test 2", NEW, "Testing task 2");
+        task.setDuration(Duration.ZERO);
+        task.setStartTime(LocalDateTime.now());
+        String taskJson = gson.toJson(task);
+
+        HttpClient client = HttpClient.newHttpClient();
+        URI url = URI.create("http://localhost:8080/tasks");
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(url)
+                .POST(HttpRequest.BodyPublishers.ofString(taskJson))
+                .build();
+
+        HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+        assertEquals(200, response.statusCode());
+
+        List<Task> tasksFromManager = manager.getAllTasks();
+
+        assertNotNull(tasksFromManager, "Задачи не возвращаются");
+        assertEquals(1, tasksFromManager.size(), "Некорректное количество задач");
+        assertEquals("Test 2", tasksFromManager.get(0).getName(), "Некорректное имя задачи");
+    }
+
+    @Test
     public void testDeleteTaskById() throws IOException, InterruptedException {
         // создаём задачу
         Task task1 = new Task(1, "задача 111", NEW, "описание задачи 111", Duration.ofMinutes(5), LocalDateTime.now());
@@ -120,16 +158,10 @@ public class HttpTaskManagerTasksTest {
 
     @Test
     public void testGetAllEpics() throws IOException, InterruptedException {
-        // создаём эпик с подзадачами
-        Epic epic = new Epic(1, "задача 111", NEW, "описание задачи 111",
-                Duration.ofMinutes(360), null);
-        SubTask subTask2 = new SubTask(2, epic, "задача 111", NEW, "описание задачи 222",
-                Duration.ofMinutes(120), LocalDateTime.of(2025, 12, 25, 10, 0));
-        SubTask subTask3 = new SubTask(3, epic, "задача 111", NEW, "описание задачи 333",
-                Duration.ofMinutes(120), LocalDateTime.of(2025, 12, 25, 12, 0));
-        SubTask subTask4 = new SubTask(4, epic, "задача 111", NEW, "описание задачи 444",
-                Duration.ofMinutes(120), LocalDateTime.of(2025, 12, 25, 14, 0));
-        manager.createEpic(epic);
+        // создаём эпики с подзадачами
+        manager.createEpic(epic1);
+        manager.createEpic(epic2);
+        manager.createEpic(epic3);
         manager.createSubTask(subTask2);
         manager.createSubTask(subTask3);
         manager.createSubTask(subTask4);
@@ -151,18 +183,6 @@ public class HttpTaskManagerTasksTest {
     @Test
     public void testGetEpicById() throws IOException, InterruptedException {
         // создаём эпики с подзадачами
-        Epic epic1 = new Epic(1, "эпик 111", NEW, "описание эпика 111",
-                Duration.ofMinutes(120), null);
-        Epic epic2 = new Epic(2, "эпик 222", NEW, "описание эпика 222",
-                Duration.ofMinutes(120), null);
-        Epic epic3 = new Epic(3, "эпик 333", NEW, "описание эпика 333",
-                Duration.ofMinutes(120), null);
-        SubTask subTask2 = new SubTask(4, epic1, "задача 444", NEW, "описание задачи 444",
-                Duration.ofMinutes(120), LocalDateTime.of(2025, 12, 25, 10, 0));
-        SubTask subTask3 = new SubTask(5, epic2, "задача 555", NEW, "описание задачи 555",
-                Duration.ofMinutes(120), LocalDateTime.of(2025, 12, 25, 12, 0));
-        SubTask subTask4 = new SubTask(6, epic3, "задача 666", NEW, "описание задачи 666",
-                Duration.ofMinutes(120), LocalDateTime.of(2025, 12, 25, 14, 0));
         manager.createEpic(epic1);
         manager.createEpic(epic2);
         manager.createEpic(epic3);
@@ -187,18 +207,6 @@ public class HttpTaskManagerTasksTest {
     @Test
     public void testGetSubtasksOfEpic() throws IOException, InterruptedException {
         // создаём эпики с подзадачами
-        Epic epic1 = new Epic(1, "эпик 111", NEW, "описание эпика 111",
-                Duration.ofMinutes(120), null);
-        Epic epic2 = new Epic(2, "эпик 222", NEW, "описание эпика 222",
-                Duration.ofMinutes(120), null);
-        Epic epic3 = new Epic(3, "эпик 333", NEW, "описание эпика 333",
-                Duration.ofMinutes(120), null);
-        SubTask subTask2 = new SubTask(4, epic1, "задача 444", NEW, "описание задачи 444",
-                Duration.ofMinutes(120), LocalDateTime.of(2025, 12, 25, 10, 0));
-        SubTask subTask3 = new SubTask(5, epic2, "задача 555", NEW, "описание задачи 555",
-                Duration.ofMinutes(120), LocalDateTime.of(2025, 12, 25, 12, 0));
-        SubTask subTask4 = new SubTask(6, epic3, "задача 666", NEW, "описание задачи 666",
-                Duration.ofMinutes(120), LocalDateTime.of(2025, 12, 25, 14, 0));
         manager.createEpic(epic1);
         manager.createEpic(epic2);
         manager.createEpic(epic3);
@@ -223,18 +231,6 @@ public class HttpTaskManagerTasksTest {
     @Test
     public void testDeleteEpicById() throws IOException, InterruptedException {
         // создаём эпики с подзадачами
-        Epic epic1 = new Epic(1, "эпик 111", NEW, "описание эпика 111",
-                Duration.ofMinutes(120), null);
-        Epic epic2 = new Epic(2, "эпик 222", NEW, "описание эпика 222",
-                Duration.ofMinutes(120), null);
-        Epic epic3 = new Epic(3, "эпик 333", NEW, "описание эпика 333",
-                Duration.ofMinutes(120), null);
-        SubTask subTask2 = new SubTask(4, epic1, "задача 444", NEW, "описание задачи 444",
-                Duration.ofMinutes(120), LocalDateTime.of(2025, 12, 25, 10, 0));
-        SubTask subTask3 = new SubTask(5, epic2, "задача 555", NEW, "описание задачи 555",
-                Duration.ofMinutes(120), LocalDateTime.of(2025, 12, 25, 12, 0));
-        SubTask subTask4 = new SubTask(6, epic3, "задача 666", NEW, "описание задачи 666",
-                Duration.ofMinutes(120), LocalDateTime.of(2025, 12, 25, 14, 0));
         manager.createEpic(epic1);
         manager.createEpic(epic2);
         manager.createEpic(epic3);
@@ -261,16 +257,10 @@ public class HttpTaskManagerTasksTest {
 
     @Test
     public void testGetAllSubTasks() throws IOException, InterruptedException {
-        // создаём эпик с подзадачами
-        Epic epic = new Epic(1, "задача 111", NEW, "описание задачи 111",
-                Duration.ofMinutes(360), null);
-        SubTask subTask2 = new SubTask(2, epic, "задача 111", NEW, "описание задачи 222",
-                Duration.ofMinutes(120), LocalDateTime.of(2025, 12, 25, 10, 0));
-        SubTask subTask3 = new SubTask(3, epic, "задача 111", NEW, "описание задачи 333",
-                Duration.ofMinutes(120), LocalDateTime.of(2025, 12, 25, 12, 0));
-        SubTask subTask4 = new SubTask(4, epic, "задача 111", NEW, "описание задачи 444",
-                Duration.ofMinutes(120), LocalDateTime.of(2025, 12, 25, 14, 0));
-        manager.createEpic(epic);
+        // создаём эпики с подзадачами
+        manager.createEpic(epic1);
+        manager.createEpic(epic2);
+        manager.createEpic(epic3);
         manager.createSubTask(subTask2);
         manager.createSubTask(subTask3);
         manager.createSubTask(subTask4);
@@ -292,18 +282,6 @@ public class HttpTaskManagerTasksTest {
     @Test
     public void testGetSubTaskById() throws IOException, InterruptedException {
         // создаём эпики с подзадачами
-        Epic epic1 = new Epic(1, "эпик 111", NEW, "описание эпика 111",
-                Duration.ofMinutes(120), null);
-        Epic epic2 = new Epic(2, "эпик 222", NEW, "описание эпика 222",
-                Duration.ofMinutes(120), null);
-        Epic epic3 = new Epic(3, "эпик 333", NEW, "описание эпика 333",
-                Duration.ofMinutes(120), null);
-        SubTask subTask2 = new SubTask(4, epic1, "задача 444", NEW, "описание задачи 444",
-                Duration.ofMinutes(120), LocalDateTime.of(2025, 12, 25, 10, 0));
-        SubTask subTask3 = new SubTask(5, epic2, "задача 555", NEW, "описание задачи 555",
-                Duration.ofMinutes(120), LocalDateTime.of(2025, 12, 25, 12, 0));
-        SubTask subTask4 = new SubTask(6, epic3, "задача 666", NEW, "описание задачи 666",
-                Duration.ofMinutes(120), LocalDateTime.of(2025, 12, 25, 14, 0));
         manager.createEpic(epic1);
         manager.createEpic(epic2);
         manager.createEpic(epic3);
@@ -328,18 +306,6 @@ public class HttpTaskManagerTasksTest {
     @Test
     public void testDeleteSubTaskById() throws IOException, InterruptedException {
         // создаём эпики с подзадачами
-        Epic epic1 = new Epic(1, "эпик 111", NEW, "описание эпика 111",
-                Duration.ofMinutes(120), null);
-        Epic epic2 = new Epic(2, "эпик 222", NEW, "описание эпика 222",
-                Duration.ofMinutes(120), null);
-        Epic epic3 = new Epic(3, "эпик 333", NEW, "описание эпика 333",
-                Duration.ofMinutes(120), null);
-        SubTask subTask2 = new SubTask(4, epic1, "задача 444", NEW, "описание задачи 444",
-                Duration.ofMinutes(120), LocalDateTime.of(2025, 12, 25, 10, 0));
-        SubTask subTask3 = new SubTask(5, epic2, "задача 555", NEW, "описание задачи 555",
-                Duration.ofMinutes(120), LocalDateTime.of(2025, 12, 25, 12, 0));
-        SubTask subTask4 = new SubTask(6, epic3, "задача 666", NEW, "описание задачи 666",
-                Duration.ofMinutes(120), LocalDateTime.of(2025, 12, 25, 14, 0));
         manager.createEpic(epic1);
         manager.createEpic(epic2);
         manager.createEpic(epic3);
@@ -367,19 +333,6 @@ public class HttpTaskManagerTasksTest {
     @Test
     public void testGetPrioritizedTasks() throws IOException, InterruptedException {
         // создаём задачи и эпики с подзадачами
-        Epic epic1 = new Epic(1, "эпик 111", NEW, "описание эпика 111",
-                Duration.ofMinutes(120), null);
-        Epic epic2 = new Epic(2, "эпик 222", NEW, "описание эпика 222",
-                Duration.ofMinutes(120), null);
-        Epic epic3 = new Epic(3, "эпик 333", NEW, "описание эпика 333",
-                Duration.ofMinutes(120), null);
-        SubTask subTask2 = new SubTask(4, epic1, "задача 444", NEW, "описание задачи 444",
-                Duration.ofMinutes(120), LocalDateTime.of(2025, 12, 25, 10, 0));
-        SubTask subTask3 = new SubTask(5, epic2, "задача 555", NEW, "описание задачи 555",
-                Duration.ofMinutes(120), LocalDateTime.of(2025, 12, 25, 12, 0));
-        SubTask subTask4 = new SubTask(6, epic3, "задача 666", NEW, "описание задачи 666",
-                Duration.ofMinutes(120), LocalDateTime.of(2025, 12, 25, 14, 0));
-        Task task = new Task(7, "задача 777", NEW, "описание задачи 777", Duration.ofMinutes(5), LocalDateTime.now());
         manager.createEpic(epic1);
         manager.createEpic(epic2);
         manager.createEpic(epic3);
@@ -405,19 +358,6 @@ public class HttpTaskManagerTasksTest {
     @Test
     public void testGetHistory() throws IOException, InterruptedException {
         // создаём задачи и эпики с подзадачами
-        Epic epic1 = new Epic(1, "эпик 111", NEW, "описание эпика 111",
-                Duration.ofMinutes(120), null);
-        Epic epic2 = new Epic(2, "эпик 222", NEW, "описание эпика 222",
-                Duration.ofMinutes(120), null);
-        Epic epic3 = new Epic(3, "эпик 333", NEW, "описание эпика 333",
-                Duration.ofMinutes(120), null);
-        SubTask subTask2 = new SubTask(4, epic1, "задача 444", NEW, "описание задачи 444",
-                Duration.ofMinutes(120), LocalDateTime.of(2025, 12, 25, 10, 0));
-        SubTask subTask3 = new SubTask(5, epic2, "задача 555", NEW, "описание задачи 555",
-                Duration.ofMinutes(120), LocalDateTime.of(2025, 12, 25, 12, 0));
-        SubTask subTask4 = new SubTask(6, epic3, "задача 666", NEW, "описание задачи 666",
-                Duration.ofMinutes(120), LocalDateTime.of(2025, 12, 25, 14, 0));
-        Task task = new Task(7, "задача 777", NEW, "описание задачи 777", Duration.ofMinutes(5), LocalDateTime.now());
         manager.createEpic(epic1);
         manager.createEpic(epic2);
         manager.createEpic(epic3);

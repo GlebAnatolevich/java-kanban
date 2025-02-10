@@ -57,7 +57,7 @@ public class InMemoryTaskManager implements TaskManager {
     }
 
     @Override
-    public Task getTask(int id) throws NoSuchElementException {
+    public Task getTask(int id) {
         Task task = tasks.get(id);
         if (task != null) {
             historyManager.addTask(task); // добавляем задачу в конец истории просмотров
@@ -68,7 +68,7 @@ public class InMemoryTaskManager implements TaskManager {
     }
 
     @Override
-    public Epic getEpic(int id) throws NoSuchElementException {
+    public Epic getEpic(int id) {
         Epic epic = epics.get(id);
         if (epic != null) {
             historyManager.addTask(epic); // добавляем эпик в конец истории просмотров
@@ -79,7 +79,7 @@ public class InMemoryTaskManager implements TaskManager {
     }
 
     @Override
-    public SubTask getSubTask(int id) throws NoSuchElementException {
+    public SubTask getSubTask(int id) {
         SubTask subTask = subTasks.get(id);
         if (subTask != null) {
             historyManager.addTask(subTask); // добавляем подзадачу в конец истории просмотров
@@ -90,7 +90,7 @@ public class InMemoryTaskManager implements TaskManager {
     }
 
     @Override
-    public void update(Task task) throws NoSuchElementException {
+    public void update(Task task) {
         if (!tasks.containsKey(task.getId())) {
             throw new NoSuchElementException("Такой задачи не существует");
         } else {
@@ -102,7 +102,7 @@ public class InMemoryTaskManager implements TaskManager {
     }
 
     @Override
-    public void updateEpic(Epic epic) throws NoSuchElementException {
+    public void updateEpic(Epic epic) {
         if (!epics.containsKey(epic.getId())) {
             throw new NoSuchElementException("Такого эпика не существует");
         } else {
@@ -113,7 +113,7 @@ public class InMemoryTaskManager implements TaskManager {
     }
 
     @Override
-    public void updateSubTask(SubTask subTask) throws NoSuchElementException {
+    public void updateSubTask(SubTask subTask) {
         if (subTask.getEpicFromSubTasks() == null
                 || !epics.containsKey(subTask.getEpicFromSubTasks().getId())) {
             throw new NoSuchElementException("Такого эпика не существует");
@@ -232,7 +232,7 @@ public class InMemoryTaskManager implements TaskManager {
     }
 
     @Override
-    public List<SubTask> getSubTasksOfEpic(int id) throws NoSuchElementException {
+    public List<SubTask> getSubTasksOfEpic(int id) {
         if (!epics.containsKey(id) || epics.get(id) == null) {
             throw new NoSuchElementException("Такой подзадачи не существует");
         } else {

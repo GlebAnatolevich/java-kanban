@@ -1,4 +1,4 @@
-package server;
+package server.handlers;
 
 import com.google.gson.Gson;
 import com.sun.net.httpserver.HttpExchange;
@@ -13,7 +13,7 @@ import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.NoSuchElementException;
 
-class TaskHandler extends BaseHttpHandler implements HttpHandler {
+public class TaskHandler extends BaseHttpHandler implements HttpHandler {
 
     protected final TaskManager manager;
     protected final Gson gson;
@@ -31,14 +31,13 @@ class TaskHandler extends BaseHttpHandler implements HttpHandler {
         Endpoint endpoint = getEndpoint(requestMethod, url);
 
         switch (endpoint) {
-            case GET_TASKS -> sendText(h, manager.getAllTasks().toString());
+            case GET_TASKS -> sendText(h, gson.toJson(manager.getAllTasks()));
             case GET_TASK_BY_ID -> {
                 try {
-                    manager.getTask(Integer.parseInt(urlParts[urlParts.length - 1]));
+                    sendText(h, gson.toJson(manager.getTask(Integer.parseInt(urlParts[urlParts.length - 1]))));
                 } catch (NoSuchElementException e) {
                     sendNotFound(h);
                 }
-                sendText(h, gson.toJson(manager.getTask(Integer.parseInt(urlParts[urlParts.length - 1]))));
             }
             case POST_TASK -> {
                 try {
@@ -47,10 +46,11 @@ class TaskHandler extends BaseHttpHandler implements HttpHandler {
                     Task task = gson.fromJson(taskStr, Task.class);
                     if (urlParts[urlParts.length - 1].equals("tasks")) {
                         manager.create(task);
-                        h.sendResponseHeaders(201, 0);
+                        sendText(h, gson.toJson("Задача с id = " + task.getId() + " успешно создана."));
                     } else {
                         manager.update(task);
-                        h.sendResponseHeaders(201, 0);
+                        sendText(h, gson.toJson("Задача с id = " + urlParts[urlParts.length - 1] +
+                                " успешно обновлена."));
                     }
                 } catch (TaskConflictException e) {
                     sendHasInteractions(h);

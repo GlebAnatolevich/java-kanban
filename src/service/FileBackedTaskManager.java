@@ -11,8 +11,6 @@ import java.nio.file.Paths;
 import java.time.Duration;
 import java.time.LocalDateTime;
 
-import static model.Status.IN_PROGRESS;
-import static model.Status.NEW;
 import static model.Type.*;
 
 public class FileBackedTaskManager extends InMemoryTaskManager {
@@ -189,33 +187,5 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
         }
         fileBackedTaskManager.seq = maxId;
         return fileBackedTaskManager;
-    }
-
-    public static void main(String[] args) {
-        FileBackedTaskManager manager = new FileBackedTaskManager(new File("Autosave","autosave.csv"));
-        manager.create(new Task(1,"задача 111", NEW, "описание задачи 111",
-                Duration.ofMinutes(120), LocalDateTime.of(2026,12,24,12,0)));
-        manager.create(new Task(2,"задача 111", IN_PROGRESS, "описание задачи 111",
-                Duration.ofMinutes(10), LocalDateTime.of(2025,12,25,15,0)));
-        manager.create(new Task(3,"задача 111", NEW, "описание задачи 111",
-                Duration.ofMinutes(180), LocalDateTime.of(2024,12,25,12,0)));
-
-        Epic epic = manager.createEpic(new Epic(4, "задача 111", NEW, "описание задачи 111",
-                Duration.ofMinutes(60), null));
-
-        System.out.println(epic.getStartTime());
-        System.out.println(epic.getEndTime() + "\n");
-
-        manager.createSubTask(new SubTask(5, epic, "задача 111", NEW, "описание задачи 111",
-                Duration.ofMinutes(50), LocalDateTime.of(2027, 12, 25, 15, 10)));
-
-        System.out.println(epic.getStartTime());
-        System.out.println(epic.getEndTime());
-
-        System.out.println();
-
-        for (Task task : manager.getPrioritizedTasks()) {
-            System.out.println(task + "\n");
-        }
     }
 }

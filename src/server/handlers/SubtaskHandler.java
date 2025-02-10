@@ -1,4 +1,4 @@
-package server;
+package server.handlers;
 
 import com.google.gson.Gson;
 import com.sun.net.httpserver.HttpExchange;
@@ -13,7 +13,7 @@ import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.NoSuchElementException;
 
-class SubtaskHandler extends TaskHandler implements HttpHandler {
+public class SubtaskHandler extends TaskHandler implements HttpHandler {
 
     public SubtaskHandler(Gson gson, TaskManager manager) {
         super(gson, manager);
@@ -27,14 +27,13 @@ class SubtaskHandler extends TaskHandler implements HttpHandler {
         Endpoint endpoint = getEndpoint(requestMethod, url);
 
         switch (endpoint) {
-            case GET_SUBTASKS -> sendText(h, manager.getAllSubTasks().toString());
+            case GET_SUBTASKS -> sendText(h, gson.toJson(manager.getAllSubTasks()));
             case GET_SUBTASK_BY_ID -> {
                 try {
-                    manager.getSubTask(Integer.parseInt(urlParts[urlParts.length - 1]));
+                    sendText(h, gson.toJson(manager.getSubTask(Integer.parseInt(urlParts[urlParts.length - 1]))));
                 } catch (NoSuchElementException e) {
                     sendNotFound(h);
                 }
-                sendText(h, manager.getSubTask(Integer.parseInt(urlParts[urlParts.length - 1])).toString());
             }
             case POST_SUBTASK -> {
                 try {

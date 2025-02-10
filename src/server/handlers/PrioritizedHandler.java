@@ -1,4 +1,4 @@
-package server;
+package server.handlers;
 
 import com.google.gson.Gson;
 import com.sun.net.httpserver.HttpExchange;
@@ -8,7 +8,7 @@ import service.TaskManager;
 
 import java.io.IOException;
 
-class PrioritizedHandler extends TaskHandler implements HttpHandler {
+public class PrioritizedHandler extends TaskHandler implements HttpHandler {
 
     public PrioritizedHandler(Gson gson, TaskManager manager) {
         super(gson, manager);
@@ -20,7 +20,7 @@ class PrioritizedHandler extends TaskHandler implements HttpHandler {
         Endpoint endpoint = getEndpoint(requestMethod);
 
         switch (endpoint) {
-            case GET_PRIORITIZED -> sendText(h, manager.getPrioritizedTasks().toString());
+            case GET_PRIORITIZED -> sendText(h, gson.toJson(manager.getPrioritizedTasks()));
             case UNKNOWN -> h.sendResponseHeaders(500, 0);
             default -> h.sendResponseHeaders(404, 0);
         }

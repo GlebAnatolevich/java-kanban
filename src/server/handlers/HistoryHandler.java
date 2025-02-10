@@ -1,4 +1,4 @@
-package server;
+package server.handlers;
 
 import com.google.gson.Gson;
 import com.sun.net.httpserver.HttpExchange;
@@ -8,7 +8,7 @@ import service.TaskManager;
 
 import java.io.IOException;
 
-class HistoryHandler extends TaskHandler implements HttpHandler {
+public class HistoryHandler extends TaskHandler implements HttpHandler {
 
     public HistoryHandler(Gson gson, TaskManager manager) {
         super(gson, manager);
@@ -20,7 +20,7 @@ class HistoryHandler extends TaskHandler implements HttpHandler {
         Endpoint endpoint = getEndpoint(requestMethod);
 
         switch (endpoint) {
-            case GET_HISTORY -> sendText(h, manager.getHistory().toString());
+            case GET_HISTORY -> sendText(h, gson.toJson(manager.getHistory()));
             case UNKNOWN -> h.sendResponseHeaders(500, 0);
             default -> h.sendResponseHeaders(404, 0);
         }
