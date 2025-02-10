@@ -4,37 +4,41 @@ import java.time.Duration;
 import java.time.LocalDateTime;
 
 public class SubTask extends Task {
-    private Epic epic;
+    private int epicId;
     private final Type type = Type.SUBTASK;
 
-    public SubTask(Epic epic, String name, Status status, String description) {
+    public SubTask(int epicId, String name, Status status, String description) {
         super(name, status, description);
-        this.epic = epic;
+        this.epicId = epicId;
     }
 
-    public SubTask(int id, Epic epic, String name, Status status, String description) { // конструктор для менеджера
+    public SubTask(int id, int epicId, String name, Status status, String description) { // конструктор для менеджера
         super(id, name, status, description);
-        this.epic = epic;
+        this.epicId = epicId;
     }
 
-    public SubTask(int id, Epic epic, String name, Status status, String description, Duration duration,
+    public SubTask(int id, int epicId, String name, Status status, String description, Duration duration,
                    LocalDateTime startTime) {
         // конструктор с полями продолжительности и времени старта
         super(id, name, status, description, duration, startTime);
-        this.epic = epic;
+        this.epicId = epicId;
     }
 
-    public Epic getEpicFromSubTasks() {
-        return epic;
+    public int getEpicIdFromSubTasks() {
+        return epicId;
+    }
+
+    public int getEpicId() {
+        return epicId;
+    }
+
+    public void setEpicId(int epicId) {
+        this.epicId = epicId;
     }
 
     @Override
     public Type getType() {
         return type;
-    }
-
-    public void setEpic(Epic epic) {
-        this.epic = epic;
     }
 
     @Override
@@ -53,6 +57,6 @@ public class SubTask extends Task {
     @Override
     public String toStringForFile() {
         return String.format("%s,%s,%s,%s,%s,%s,%s,%s,%s", id, type, name, status, description, startTime, duration,
-                getEndTime(), epic.getId());
+                getEndTime(), epicId);
     }
 }

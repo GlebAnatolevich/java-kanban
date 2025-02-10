@@ -34,11 +34,11 @@ public class HttpTaskManagerTasksTest {
             Duration.ofMinutes(120), LocalDateTime.of(2025, 12, 25, 12, 0));
     final Epic epic3 = new Epic(3, "эпик 333", NEW, "описание эпика 333",
             Duration.ofMinutes(120), LocalDateTime.of(2025, 12, 25, 14, 0));
-    final SubTask subTask2 = new SubTask(4, epic1, "задача 444", NEW, "описание задачи 444",
+    final SubTask subTask4 = new SubTask(4, 1, "задача 444", NEW, "описание задачи 444",
             Duration.ofMinutes(120), LocalDateTime.of(2025, 12, 25, 10, 0));
-    final SubTask subTask3 = new SubTask(5, epic2, "задача 555", NEW, "описание задачи 555",
+    final SubTask subTask5 = new SubTask(5, 2, "задача 555", NEW, "описание задачи 555",
             Duration.ofMinutes(120), LocalDateTime.of(2025, 12, 25, 12, 0));
-    final SubTask subTask4 = new SubTask(6, epic3, "задача 666", NEW, "описание задачи 666",
+    final SubTask subTask6 = new SubTask(6, 3, "задача 666", NEW, "описание задачи 666",
             Duration.ofMinutes(120), LocalDateTime.of(2025, 12, 25, 14, 0));
     final Task task = new Task(7, "задача 777", NEW, "описание задачи 777", Duration.ofMinutes(5), LocalDateTime.now());
 
@@ -162,9 +162,9 @@ public class HttpTaskManagerTasksTest {
         manager.createEpic(epic1);
         manager.createEpic(epic2);
         manager.createEpic(epic3);
-        manager.createSubTask(subTask2);
-        manager.createSubTask(subTask3);
-        manager.createSubTask(subTask4);
+        /*manager.createSubTask(subTask4);
+        manager.createSubTask(subTask5);
+        manager.createSubTask(subTask6);*/
 
         // создаём HTTP-клиент и запрос
         HttpClient client = HttpClient.newHttpClient();
@@ -186,13 +186,13 @@ public class HttpTaskManagerTasksTest {
         manager.createEpic(epic1);
         manager.createEpic(epic2);
         manager.createEpic(epic3);
-        manager.createSubTask(subTask2);
-        manager.createSubTask(subTask3);
-        manager.createSubTask(subTask4);
+        /*manager.createSubTask(subTask4);
+        manager.createSubTask(subTask5);
+        manager.createSubTask(subTask6);*/
 
         // создаём HTTP-клиент и запрос
         HttpClient client = HttpClient.newHttpClient();
-        URI url = URI.create("http://localhost:8080/epics/1");
+        URI url = URI.create("http://localhost:8080/epics/3");
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(url)
                 .GET()
@@ -210,9 +210,9 @@ public class HttpTaskManagerTasksTest {
         manager.createEpic(epic1);
         manager.createEpic(epic2);
         manager.createEpic(epic3);
-        manager.createSubTask(subTask2);
-        manager.createSubTask(subTask3);
         manager.createSubTask(subTask4);
+        manager.createSubTask(subTask5);
+        manager.createSubTask(subTask6);
 
         // создаём HTTP-клиент и запрос
         HttpClient client = HttpClient.newHttpClient();
@@ -234,9 +234,9 @@ public class HttpTaskManagerTasksTest {
         manager.createEpic(epic1);
         manager.createEpic(epic2);
         manager.createEpic(epic3);
-        manager.createSubTask(subTask2);
-        manager.createSubTask(subTask3);
         manager.createSubTask(subTask4);
+        manager.createSubTask(subTask5);
+        manager.createSubTask(subTask6);
 
         // создаём HTTP-клиент и запрос
         HttpClient client = HttpClient.newHttpClient();
@@ -261,9 +261,9 @@ public class HttpTaskManagerTasksTest {
         manager.createEpic(epic1);
         manager.createEpic(epic2);
         manager.createEpic(epic3);
-        manager.createSubTask(subTask2);
-        manager.createSubTask(subTask3);
         manager.createSubTask(subTask4);
+        manager.createSubTask(subTask5);
+        manager.createSubTask(subTask6);
 
         // создаём HTTP-клиент и запрос
         HttpClient client = HttpClient.newHttpClient();
@@ -285,9 +285,9 @@ public class HttpTaskManagerTasksTest {
         manager.createEpic(epic1);
         manager.createEpic(epic2);
         manager.createEpic(epic3);
-        manager.createSubTask(subTask2);
-        manager.createSubTask(subTask3);
         manager.createSubTask(subTask4);
+        manager.createSubTask(subTask5);
+        manager.createSubTask(subTask6);
 
         // создаём HTTP-клиент и запрос
         HttpClient client = HttpClient.newHttpClient();
@@ -309,9 +309,9 @@ public class HttpTaskManagerTasksTest {
         manager.createEpic(epic1);
         manager.createEpic(epic2);
         manager.createEpic(epic3);
-        manager.createSubTask(subTask2);
-        manager.createSubTask(subTask3);
         manager.createSubTask(subTask4);
+        manager.createSubTask(subTask5);
+        manager.createSubTask(subTask6);
 
         // создаём HTTP-клиент и запрос
         HttpClient client = HttpClient.newHttpClient();
@@ -336,9 +336,9 @@ public class HttpTaskManagerTasksTest {
         manager.createEpic(epic1);
         manager.createEpic(epic2);
         manager.createEpic(epic3);
-        manager.createSubTask(subTask2);
-        manager.createSubTask(subTask3);
         manager.createSubTask(subTask4);
+        manager.createSubTask(subTask5);
+        manager.createSubTask(subTask6);
         manager.create(task);
 
         // создаём HTTP-клиент и запрос
@@ -361,9 +361,9 @@ public class HttpTaskManagerTasksTest {
         manager.createEpic(epic1);
         manager.createEpic(epic2);
         manager.createEpic(epic3);
-        manager.createSubTask(subTask2);
-        manager.createSubTask(subTask3);
         manager.createSubTask(subTask4);
+        manager.createSubTask(subTask5);
+        manager.createSubTask(subTask6);
         manager.create(task);
 
         // создаём HTTP-клиент и запрос

@@ -42,14 +42,14 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public SubTask createSubTask(SubTask subTask) {
-        if (subTask.getEpicFromSubTasks() == null || !epics.containsKey(subTask.getEpicFromSubTasks().getId())) {
+        if (!epics.containsKey(subTask.getEpicIdFromSubTasks())) {
             return null;
         }
         cross(subTask);
         subTask.setId(generateId());
         subTasks.put(subTask.getId(), subTask);
         prioritizedTasks.add(subTask);
-        Epic epic = epics.get(subTask.getEpicFromSubTasks().getId());
+        Epic epic = epics.get(subTask.getEpicIdFromSubTasks());
         epic.addTask(subTask);
         calculateStatus(epic);
         calculateEpicTime(epic);
@@ -114,15 +114,14 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public void updateSubTask(SubTask subTask) {
-        if (subTask.getEpicFromSubTasks() == null
-                || !epics.containsKey(subTask.getEpicFromSubTasks().getId())) {
+        if (!epics.containsKey(subTask.getEpicIdFromSubTasks())) {
             throw new NoSuchElementException("Такого эпика не существует");
         } else if (!subTasks.containsKey(subTask.getId())) {
             throw new NoSuchElementException("Такой подзадачи не существует");
         } else {
             cross(subTask);
             SubTask subTaskRemoved = subTasks.get(subTask.getId()); // получили старую подзадачу из Х-Т
-            Epic savedEpic = epics.get(subTask.getEpicFromSubTasks().getId()); // получили эпик из Х-Т
+            Epic savedEpic = epics.get(subTask.getEpicIdFromSubTasks()); // получили эпик из Х-Т
             savedEpic.removeTask(subTaskRemoved); // удалили старую подзадачу из списка подзадач эпика
             savedEpic.addTask(subTask); // добавили новую подзадачу в список подзадач эпика
             subTasks.put(subTask.getId(), subTask); // обновили подзадачу в Х-Т подзадач
@@ -162,7 +161,7 @@ public class InMemoryTaskManager implements TaskManager {
             return;
         }
         SubTask removeSubTask = subTasks.remove(id); // removeSubTask - удаляемая подзадача, удалили её из Х-Т
-        Epic epic = removeSubTask.getEpicFromSubTasks(); // получили эпик (в котором она хранится) по удаляемой подзадаче
+        Epic epic = epics.get(removeSubTask.getEpicIdFromSubTasks()); // получили эпик (в котором она хранится) по удаляемой подзадаче
         Epic epicSaved = epics.get(epic.getId()); // перезаписали эпик в новый объект (пересохранили)
         epicSaved.getSubTasks().remove(removeSubTask); // получили список подзадач эпика и удалили удаляемую подзадачу из списка
         calculateStatus(epicSaved); // пересчитали статус эпика

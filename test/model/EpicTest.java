@@ -23,7 +23,7 @@ class EpicTest {
         int epicId = epic.getId();
         Epic savedEpic = taskManager.getEpic(epicId);
 
-        SubTask subTask2 = taskManager.createSubTask(new SubTask(2,epic,"задача 111", NEW,
+        SubTask subTask2 = taskManager.createSubTask(new SubTask(2,epic.getId(),"задача 111", NEW,
                 "описание задачи 111", Duration.ofMinutes(120),
                 LocalDateTime.of(2024,12,25,10,0)));
 
@@ -50,11 +50,11 @@ class EpicTest {
     @Test
     public void epicsStatusShouldBeNew_IfAllSubTasksNew() {
         taskManager.createEpic(epic);
-        taskManager.createSubTask(new SubTask(2,epic,"задача 111", NEW, "описание задачи 111",
+        taskManager.createSubTask(new SubTask(2,epic.getId(),"задача 111", NEW, "описание задачи 111",
                 Duration.ofMinutes(120), LocalDateTime.of(2024,12,25,10,0)));
-        taskManager.createSubTask(new SubTask(3,epic,"задача 111", NEW, "описание задачи 111",
+        taskManager.createSubTask(new SubTask(3,epic.getId(),"задача 111", NEW, "описание задачи 111",
                 Duration.ofMinutes(120), LocalDateTime.of(2024,12,25,12,0)));
-        taskManager.createSubTask(new SubTask(4,epic,"задача 111", NEW, "описание задачи 111",
+        taskManager.createSubTask(new SubTask(4,epic.getId(),"задача 111", NEW, "описание задачи 111",
                 Duration.ofMinutes(120), LocalDateTime.of(2024,12,25,14,0)));
 
         assertSame(epic.getStatus(), NEW, "СТАТУС ЭПИКА РАССЧИТАН НЕВЕРНО");
@@ -63,11 +63,11 @@ class EpicTest {
     @Test
     public void epicsStatusShouldBeDone_IfAllSubTasksDone() {
         taskManager.createEpic(epic);
-        taskManager.createSubTask(new SubTask(2,epic,"задача 111", DONE, "описание задачи 111",
+        taskManager.createSubTask(new SubTask(2,epic.getId(),"задача 111", DONE, "описание задачи 111",
                 Duration.ofMinutes(120), LocalDateTime.of(2024,12,25,10,0)));
-        taskManager.createSubTask(new SubTask(3,epic,"задача 111", DONE, "описание задачи 111",
+        taskManager.createSubTask(new SubTask(3,epic.getId(),"задача 111", DONE, "описание задачи 111",
                 Duration.ofMinutes(120), LocalDateTime.of(2024,12,25,12,0)));
-        taskManager.createSubTask(new SubTask(4,epic,"задача 111", DONE, "описание задачи 111",
+        taskManager.createSubTask(new SubTask(4,epic.getId(),"задача 111", DONE, "описание задачи 111",
                 Duration.ofMinutes(120), LocalDateTime.of(2024,12,25,14,0)));
 
         assertSame(epic.getStatus(), DONE, "СТАТУС ЭПИКА РАССЧИТАН НЕВЕРНО");
@@ -76,11 +76,11 @@ class EpicTest {
     @Test
     public void epicsStatusShouldBeInProgress_IfSubTasksNewAndDone() {
         taskManager.createEpic(epic);
-        taskManager.createSubTask(new SubTask(2,epic,"задача 111", NEW, "описание задачи 111",
+        taskManager.createSubTask(new SubTask(2,epic.getId(),"задача 111", NEW, "описание задачи 111",
                 Duration.ofMinutes(120), LocalDateTime.of(2024,12,25,10,0)));
-        taskManager.createSubTask(new SubTask(3,epic,"задача 111", DONE, "описание задачи 111",
+        taskManager.createSubTask(new SubTask(3,epic.getId(),"задача 111", DONE, "описание задачи 111",
                 Duration.ofMinutes(120), LocalDateTime.of(2024,12,25,12,0)));
-        taskManager.createSubTask(new SubTask(4,epic,"задача 111", DONE, "описание задачи 111",
+        taskManager.createSubTask(new SubTask(4,epic.getId(),"задача 111", DONE, "описание задачи 111",
                 Duration.ofMinutes(120), LocalDateTime.of(2024,12,25,14,0)));
 
         assertSame(epic.getStatus(), IN_PROGRESS, "СТАТУС ЭПИКА РАССЧИТАН НЕВЕРНО");
@@ -89,11 +89,11 @@ class EpicTest {
     @Test
     public void epicsStatusShouldBeInProgress_IfAllSubTasksInProgress() {
         taskManager.createEpic(epic);
-        taskManager.createSubTask(new SubTask(2,epic,"задача 111", IN_PROGRESS, "описание задачи 111",
+        taskManager.createSubTask(new SubTask(2,epic.getId(),"задача 111", IN_PROGRESS, "описание задачи 111",
                 Duration.ofMinutes(120), LocalDateTime.of(2024,12,25,10,0)));
-        taskManager.createSubTask(new SubTask(3,epic,"задача 111", IN_PROGRESS, "описание задачи 111",
+        taskManager.createSubTask(new SubTask(3,epic.getId(),"задача 111", IN_PROGRESS, "описание задачи 111",
                 Duration.ofMinutes(120), LocalDateTime.of(2024,12,25,12,0)));
-        taskManager.createSubTask(new SubTask(4,epic,"задача 111", IN_PROGRESS, "описание задачи 111",
+        taskManager.createSubTask(new SubTask(4,epic.getId(),"задача 111", IN_PROGRESS, "описание задачи 111",
                 Duration.ofMinutes(120), LocalDateTime.of(2024,12,25,14,0)));
 
         assertSame(epic.getStatus(), IN_PROGRESS, "СТАТУС ЭПИКА РАССЧИТАН НЕВЕРНО");

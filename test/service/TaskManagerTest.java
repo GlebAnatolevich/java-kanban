@@ -17,11 +17,11 @@ abstract class TaskManagerTest<T extends TaskManager> {
     protected T manager;
     protected final Epic epic = new Epic(1,"задача 111", NEW, "описание задачи 111",
             Duration.ofMinutes(360), null);
-    protected final SubTask subTask2 = new SubTask(2,epic,"задача 111", NEW, "описание задачи 222",
+    protected final SubTask subTask2 = new SubTask(2,epic.getId(),"задача 111", NEW, "описание задачи 222",
             Duration.ofMinutes(120), LocalDateTime.of(2025,12,25,10,0));
-    protected final SubTask subTask3 = new SubTask(3,epic,"задача 111", NEW, "описание задачи 333",
+    protected final SubTask subTask3 = new SubTask(3,epic.getId(),"задача 111", NEW, "описание задачи 333",
             Duration.ofMinutes(120), LocalDateTime.of(2025,12,25,12,0));
-    protected final SubTask subTask4 = new SubTask(4,epic,"задача 111", NEW, "описание задачи 444",
+    protected final SubTask subTask4 = new SubTask(4,epic.getId(),"задача 111", NEW, "описание задачи 444",
             Duration.ofMinutes(120), LocalDateTime.of(2025,12,25,14,0));
     protected final Task task = new Task(5,"задача 111", NEW, "описание задачи 111",
             Duration.ofMinutes(120), LocalDateTime.of(2024,12,24,12,0));
@@ -59,7 +59,7 @@ abstract class TaskManagerTest<T extends TaskManager> {
 
         assertEquals(subTask2, updatedSubTask, "Подзадачи не равны");
         assertEquals(subTask2.getId(), updatedSubTask.getId(), "Id подзадач не равны");
-        assertEquals(subTask2.getEpicFromSubTasks(), epic);
+        assertEquals(subTask2.getEpicIdFromSubTasks(), epic.getId());
         assertSame(epic.getStatus(), NEW, "СТАТУС ЭПИКА РАССЧИТАН НЕВЕРНО");
     }
 

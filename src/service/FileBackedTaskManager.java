@@ -15,7 +15,7 @@ import static model.Type.*;
 
 public class FileBackedTaskManager extends InMemoryTaskManager {
     private final File file;
-    private static final String HEADER = "id,type,name,status,description,startTime,duration,endTime,epic";
+    private static final String HEADER = "id,type,name,status,description,startTime,duration,endTime,epicId";
 
     public FileBackedTaskManager(File file) {
         this.file = file;
@@ -144,7 +144,7 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
             return new Task(id, name, status, description, duration, startTime);
         } else if (type == SUBTASK) {
             Epic epic = epics.get(epicId);
-            SubTask subTask = new SubTask(id, epic, name, status, description, duration, startTime);
+            SubTask subTask = new SubTask(id, epicId, name, status, description, duration, startTime);
             epic.addTask(subTask);
             return subTask;
         } else if (type == EPIC) {
