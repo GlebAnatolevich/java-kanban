@@ -162,9 +162,9 @@ public class HttpTaskManagerTasksTest {
         manager.createEpic(epic1);
         manager.createEpic(epic2);
         manager.createEpic(epic3);
-        /*manager.createSubTask(subTask4);
+        manager.createSubTask(subTask4);
         manager.createSubTask(subTask5);
-        manager.createSubTask(subTask6);*/
+        manager.createSubTask(subTask6);
 
         // создаём HTTP-клиент и запрос
         HttpClient client = HttpClient.newHttpClient();
@@ -186,9 +186,9 @@ public class HttpTaskManagerTasksTest {
         manager.createEpic(epic1);
         manager.createEpic(epic2);
         manager.createEpic(epic3);
-        /*manager.createSubTask(subTask4);
+        manager.createSubTask(subTask4);
         manager.createSubTask(subTask5);
-        manager.createSubTask(subTask6);*/
+        manager.createSubTask(subTask6);
 
         // создаём HTTP-клиент и запрос
         HttpClient client = HttpClient.newHttpClient();
@@ -226,6 +226,31 @@ public class HttpTaskManagerTasksTest {
         HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
         // проверяем код ответа
         assertEquals(200, response.statusCode());
+    }
+
+    @Test
+    public void testCreateEpic() throws IOException, InterruptedException {
+        Epic epic = new Epic("Epic1", NEW, "Testing epic1");
+        epic.setDuration(Duration.ofMinutes(120));
+        epic.setStartTime(LocalDateTime.now());
+        epic.setEndTime(LocalDateTime.now().plusMinutes(120));
+        String epicJson = gson.toJson(epic);
+
+        HttpClient client = HttpClient.newHttpClient();
+        URI url = URI.create("http://localhost:8080/epics");
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(url)
+                .POST(HttpRequest.BodyPublishers.ofString(epicJson))
+                .build();
+
+        HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+        assertEquals(200, response.statusCode());
+
+        List<Epic> tasksFromManager = manager.getAllEpics();
+
+        assertNotNull(tasksFromManager, "Задачи не возвращаются");
+        assertEquals(1, tasksFromManager.size(), "Некорректное количество задач");
+        assertEquals("Epic1", tasksFromManager.get(0).getName(), "Некорректное имя задачи");
     }
 
     @Test
@@ -301,6 +326,28 @@ public class HttpTaskManagerTasksTest {
         HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
         // проверяем код ответа
         assertEquals(200, response.statusCode());
+    }
+
+    @Test
+    public void testCreateSubTask() throws IOException, InterruptedException {
+        manager.createEpic(epic1);
+        String subTaskJson = gson.toJson(subTask4);
+
+        HttpClient client = HttpClient.newHttpClient();
+        URI url = URI.create("http://localhost:8080/subtasks");
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(url)
+                .POST(HttpRequest.BodyPublishers.ofString(subTaskJson))
+                .build();
+
+        HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+        assertEquals(200, response.statusCode());
+
+        List<SubTask> tasksFromManager = manager.getAllSubTasks();
+
+        assertNotNull(tasksFromManager, "Задачи не возвращаются");
+        assertEquals(1, tasksFromManager.size(), "Некорректное количество задач");
+        assertEquals("задача 444", tasksFromManager.get(0).getName(), "Некорректное имя задачи");
     }
 
     @Test
@@ -390,5 +437,19 @@ public class HttpTaskManagerTasksTest {
 
         List<Task> tasksFromManager = manager.getHistory();
         assertEquals(2, tasksFromManager.size(), "Некорректное количество задач");
+    }
+
+    @Test
+    public void testCreateAnEmptyTask() throws IOException, InterruptedException {
+
+        HttpClient client = HttpClient.newHttpClient();
+        URI url = URI.create("http://localhost:8080/tasks");
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(url)
+                .POST(HttpRequest.BodyPublishers.ofString(""))
+                .build();
+
+        HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+        assertEquals(404, response.statusCode());
     }
 }

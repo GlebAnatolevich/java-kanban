@@ -15,8 +15,8 @@ abstract class BaseHttpHandler { // общий для обработчиков �
         h.close();
     }
 
-    protected void sendNotFound(HttpExchange h) throws IOException {
-        byte[] resp = "Такой задачи/эпика не существует.".getBytes(StandardCharsets.UTF_8);
+    protected void sendNotFound(HttpExchange h, String text) throws IOException {
+        byte[] resp = text.getBytes(StandardCharsets.UTF_8);
         h.getResponseHeaders().add("Content-Type", "application/json;charset=utf-8");
         h.sendResponseHeaders(404, resp.length);
         h.getResponseBody().write(resp);

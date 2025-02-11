@@ -36,21 +36,25 @@ public class TaskHandler extends BaseHttpHandler implements HttpHandler {
                 try {
                     sendText(h, gson.toJson(manager.getTask(Integer.parseInt(urlParts[urlParts.length - 1]))));
                 } catch (NoSuchElementException e) {
-                    sendNotFound(h);
+                    sendNotFound(h, gson.toJson("Такой задачи не существует."));
                 }
             }
             case POST_TASK -> {
                 try {
                     InputStream is = h.getRequestBody();
                     String taskStr = new String(is.readAllBytes(), StandardCharsets.UTF_8);
-                    Task task = gson.fromJson(taskStr, Task.class);
-                    if (urlParts[urlParts.length - 1].equals("tasks")) {
-                        manager.create(task);
-                        sendText(h, gson.toJson("Задача с id = " + task.getId() + " успешно создана."));
+                    if ((taskStr.isEmpty()) || (taskStr.isBlank())) {
+                        sendNotFound(h, gson.toJson("Тело сообщения должно содержать экземпляр 'Task'"));
                     } else {
-                        manager.update(task);
-                        sendText(h, gson.toJson("Задача с id = " + urlParts[urlParts.length - 1] +
-                                " успешно обновлена."));
+                        Task task = gson.fromJson(taskStr, Task.class);
+                        if (urlParts[urlParts.length - 1].equals("tasks")) {
+                            manager.create(task);
+                            sendText(h, gson.toJson("Задача с id = " + task.getId() + " успешно создана."));
+                        } else {
+                            manager.update(task);
+                            sendText(h, gson.toJson("Задача с id = " + urlParts[urlParts.length - 1] +
+                                    " успешно обновлена."));
+                        }
                     }
                 } catch (TaskConflictException e) {
                     sendHasInteractions(h);

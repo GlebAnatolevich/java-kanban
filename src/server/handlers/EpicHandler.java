@@ -31,26 +31,31 @@ public class EpicHandler extends TaskHandler implements HttpHandler {
                 try {
                     sendText(h, gson.toJson(manager.getEpic(Integer.parseInt(urlParts[urlParts.length - 1]))));
                 } catch (NoSuchElementException e) {
-                    sendNotFound(h);
+                    sendNotFound(h, gson.toJson("Такого эпика не существует."));
                 }
             }
             case GET_EPIC_SUBTASKS -> {
                 try {
                     sendText(h,gson.toJson(manager.getSubTasksOfEpic(Integer.parseInt(urlParts[urlParts.length - 2]))));
                 } catch (NoSuchElementException e) {
-                    sendNotFound(h);
+                    sendNotFound(h, gson.toJson("Такого эпика не существует."));
                 }
             }
             case POST_EPIC -> {
                 InputStream is = h.getRequestBody();
                 String epicStr = new String(is.readAllBytes(), StandardCharsets.UTF_8);
-                Epic epic = gson.fromJson(epicStr, Epic.class);
-                if (urlParts[urlParts.length - 1].equals("epics")) {
-                    manager.createEpic(epic);
+                if ((epicStr.isEmpty()) || (epicStr.isBlank())) {
+                    sendNotFound(h, gson.toJson("Тело сообщения должно содержать экземпляр 'Epic'"));
                 } else {
-                    manager.updateEpic(epic);
+                    Epic epic = gson.fromJson(epicStr, Epic.class);
+                    if (urlParts[urlParts.length - 1].equals("epics")) {
+                        manager.createEpic(epic);
+                        sendText(h, gson.toJson("Эпик с id = " + epic.getId() + " успешно создан."));
+                    } else {
+                        manager.updateEpic(epic);
+                        sendText(h, gson.toJson("Эпик с id = " + urlParts[urlParts.length - 1] + " успешно обновлен."));
+                    }
                 }
-                h.sendResponseHeaders(201, 0);
             }
             case DELETE_EPIC_BY_ID -> {
                 manager.deleteEpic(Integer.parseInt(urlParts[urlParts.length - 1]));

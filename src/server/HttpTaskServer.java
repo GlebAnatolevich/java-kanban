@@ -3,7 +3,6 @@ package server;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.sun.net.httpserver.HttpServer;
-import model.Task;
 import server.adapter.DurationTypeAdapter;
 import server.adapter.LocalDateTimeTypeAdapter;
 import server.handlers.*;
@@ -11,14 +10,9 @@ import service.TaskManager;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
-import java.net.URI;
-import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
-import java.net.http.HttpResponse;
 import java.time.Duration;
 import java.time.LocalDateTime;
 
-import static model.Status.NEW;
 import static service.Managers.getDefault;
 
 public class HttpTaskServer {
@@ -44,23 +38,10 @@ public class HttpTaskServer {
                 .create();
     }
 
-    public static void main(String[] args) throws IOException, InterruptedException {
+    public static void main(String[] args) throws IOException {
         HttpTaskServer httpTaskServer = new HttpTaskServer(getDefault());
         httpTaskServer.startServer();
-        Task task = new Task("Test 2", NEW, "Testing task 2");
-        task.setDuration(Duration.ZERO);
-        task.setStartTime(LocalDateTime.now());
-        String taskJson = getGson().toJson(task);
-
-        HttpClient client = HttpClient.newHttpClient();
-        URI url = URI.create("http://localhost:8080/tasks");
-        HttpRequest request = HttpRequest.newBuilder()
-                .uri(url)
-                .POST(HttpRequest.BodyPublishers.ofString(taskJson))
-                .build();
-
-        HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
-        //httpTaskServer.stopServer();
+        httpTaskServer.stopServer();
     }
 
     public void startServer() {
