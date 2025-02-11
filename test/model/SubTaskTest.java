@@ -14,7 +14,7 @@ class SubTaskTest {
     private final InMemoryTaskManager taskManager = new InMemoryTaskManager();
     final Epic epic = new Epic(1,"задача 111", NEW, "описание задачи 111",
             Duration.ofMinutes(10), LocalDateTime.of(2024,12,25,15,0));
-    final SubTask subTask2 = new SubTask(2,epic,"задача 111", NEW, "описание задачи 111",
+    final SubTask subTask2 = new SubTask(2,1,"задача 111", NEW, "описание задачи 111",
             Duration.ofMinutes(180), LocalDateTime.of(2024,12,25,12,0));
 
     @Test
@@ -28,9 +28,8 @@ class SubTaskTest {
         assertNotNull(savedSubTask, "Подзадача не найдена");
         assertEquals(subTask2, savedSubTask, "Подзадачи не совпадают");
 
-        Epic gettedEpic = subTask2.getEpicFromSubTasks();
+        int epicId = subTask2.getEpicIdFromSubTasks();
 
-        assertNotNull(gettedEpic, "Эпик не найден");
-        assertEquals(gettedEpic, epic, "Эпики не совпадают");
+        assertEquals(epic.getId(), epicId, "Эпики не совпадают");
     }
 }

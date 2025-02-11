@@ -10,14 +10,15 @@ public class Task {
     protected String name;
     protected Status status;
     protected String description;
-    protected Type type = Type.TASK;
     protected Duration duration;
     protected LocalDateTime startTime;
+    protected Type type;
 
     public Task(String name, Status status, String description) {
         this.name = name;
         this.status = status;
         this.description = description;
+        this.type = Type.TASK;
     }
 
     public Task(int id, String name, Status status, String description) { // конструктор для менеджера
@@ -25,6 +26,7 @@ public class Task {
         this.name = name;
         this.status = status;
         this.description = description;
+        this.type = Type.TASK;
     }
 
     public Task(int id, String name, Status status, String description, Duration duration, LocalDateTime startTime) {
@@ -35,6 +37,7 @@ public class Task {
         this.description = description;
         this.duration = duration;
         this.startTime = startTime;
+        this.type = Type.TASK;
     }
 
     public Task() {

@@ -7,20 +7,22 @@ import java.util.List;
 
 public class Epic extends Task {
     private final List<SubTask> subTasks = new ArrayList<>();
-    private final Type type = Type.EPIC;
     private LocalDateTime endTime;
 
     public Epic(String name, Status status, String description) {
         super(name, status, description);
+        this.type = Type.EPIC;
     }
 
     public Epic(int id, String name, Status status, String description) { // конструктор для менеджера
         super(id, name, status, description);
+        this.type = Type.EPIC;
     }
 
     public Epic(int id, String name, Status status, String description, Duration duration, LocalDateTime startTime) {
         // конструктор с полями продолжительности и времени старта
         super(id, name, status, description, duration, startTime);
+        this.type = Type.EPIC;
     }
 
     public List<SubTask> getSubTasks() {
@@ -33,11 +35,6 @@ public class Epic extends Task {
 
     public void removeTask(SubTask subTask) {
         subTasks.remove(subTask);
-    }
-
-    @Override
-    public Type getType() {
-        return type;
     }
 
     @Override

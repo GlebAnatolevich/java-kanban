@@ -20,11 +20,11 @@ class InMemoryHistoryManagerTest {
 
     private final Epic epic = new Epic(1,"задача 111", NEW, "описание задачи 111",
             Duration.ofMinutes(360), LocalDateTime.of(2025,12,25,10,0));
-    private final SubTask subTask2 = new SubTask(2,epic,"задача 111", NEW, "описание задачи 222",
-            Duration.ofMinutes(120), LocalDateTime.of(2025,12,25,10,0));
-    private final SubTask subTask3 = new SubTask(3,epic,"задача 111", NEW, "описание задачи 333",
+    private final SubTask subTask2 = new SubTask(2, 2, "задача 111", NEW, "описание задачи 222",
+            Duration.ofMinutes(360), LocalDateTime.of(2025,12,25,10,0));
+    private final SubTask subTask3 = new SubTask(3, 2, "задача 111", NEW, "описание задачи 333",
             Duration.ofMinutes(120), LocalDateTime.of(2025,12,25,12,0));
-    private final SubTask subTask4 = new SubTask(4,epic,"задача 111", NEW, "описание задачи 444",
+    private final SubTask subTask4 = new SubTask(4, 2, "задача 111", NEW, "описание задачи 444",
             Duration.ofMinutes(120), LocalDateTime.of(2025,12,25,14,0));
     private final Task task = new Task(5,"задача 111", NEW, "описание задачи 111",
             Duration.ofMinutes(120), LocalDateTime.of(2024,12,24,12,0));
@@ -89,14 +89,13 @@ class InMemoryHistoryManagerTest {
 
     @Test
     public void getHistoryShouldReturnPreviousSubTaskAfterUpdate() {
+        taskManager.create(task);
         taskManager.createEpic(epic);
 
         taskManager.createSubTask(subTask2);
         taskManager.getSubTask(subTask2.getId()); // для пополнения истории просмотров
 
-        SubTask updatedSubTask = subTask3;
-        updatedSubTask.setId(subTask2.getId());
-        taskManager.updateSubTask(updatedSubTask);
+        taskManager.updateSubTask(subTask3);
 
         List<Task> tasks = taskManager.getHistory();
         Task prevTask = tasks.getFirst();
